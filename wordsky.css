@@ -1,0 +1,30 @@
+@font-face {
+  /* 字体名称，后续使用 font-family 调用 */
+  font-family: 'ShouXie';
+  /* 字体文件路径（根据实际项目目录调整） */
+  src: url('./9EvmDvf6Eg1O.woff2') format('woff2');
+}
+.word-box,
+.word-box .word{
+position: absolute;
+animation: rotY 0s linear infinite;
+animation-duration: var(--animation-duration);
+animation-delay: var(--animation-delay);
+}
+.word-box{
+    margin-top: var(--margin-top);
+}
+.word-box .word{
+    margin-left: var(--margin-left);
+    /* 景深效果：仅清晰度和模糊度变化，不改变大小 */
+    opacity: calc(0.25 + var(--depth) * 0.75);
+    filter: blur(calc((1 - var(--depth)) * 2.5px));
+}
+.word-box .word {
+    animation-duration: reverse;
+}
+@keyframes rotY {
+    to{
+        transform: rotateY(360deg);
+    }
+}

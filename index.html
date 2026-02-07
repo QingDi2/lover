@@ -256,6 +256,7 @@
             justify-content: center;
             align-items: center;
             perspective: 800px;
+            index:999;
         }
 
         .rose-wrapper {
@@ -417,74 +418,119 @@
         }
 
         .glass-card {
-            background: rgba(30, 40, 80, 0.35);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(130, 180, 240, 0.2);
-            border-radius: 20px;
-            padding: 30px 24px;
+            background: linear-gradient(165deg, rgba(25, 30, 70, 0.5), rgba(35, 25, 65, 0.45), rgba(20, 28, 60, 0.5));
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(140, 140, 230, 0.12);
+            border-radius: 18px;
+            padding: 34px 26px 28px;
             width: 260px;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            transform: translateY(0);
+            box-shadow:
+                0 4px 20px rgba(10, 10, 40, 0.3),
+                inset 0 1px 0 rgba(180, 180, 255, 0.06);
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        box-shadow 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        border-color 0.6s ease;
         }
 
+        /* 卡片顶部渐变装饰线 */
         .glass-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            border-radius: 20px;
-            border: 2px solid transparent;
-            background: linear-gradient(135deg, rgba(100, 180, 240, 0), rgba(100, 180, 240, 0)) padding-box,
-                        linear-gradient(135deg, rgba(100, 180, 240, 0.2), rgba(180, 160, 100, 0.1)) border-box;
-            opacity: 0;
-            transition: opacity 0.4s ease;
+            top: 0;
+            left: 15%;
+            width: 70%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(140, 160, 255, 0.4), rgba(180, 140, 230, 0.35), rgba(140, 160, 255, 0.4), transparent);
+            border-radius: 0 0 2px 2px;
+        }
+
+        /* 卡片底部微光 */
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 60px;
+            background: radial-gradient(ellipse, rgba(130, 120, 240, 0.06) 0%, transparent 70%);
             pointer-events: none;
         }
 
         .glass-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
+            border-color: rgba(160, 140, 255, 0.35);
             box-shadow:
-                0 10px 40px rgba(100, 160, 240, 0.15),
-                0 0 30px rgba(130, 180, 255, 0.1),
-                inset 0 0 30px rgba(100, 160, 240, 0.05);
-            border-color: transparent;
+                0 0 15px rgba(140, 120, 255, 0.25),
+                0 0 40px rgba(120, 100, 240, 0.15),
+                0 0 80px rgba(100, 130, 255, 0.1),
+                inset 0 0 25px rgba(140, 120, 255, 0.06);
+            animation: cardGlow 3s ease-in-out infinite;
         }
 
-        .glass-card:hover::before {
-            opacity: 1;
-            background: linear-gradient(135deg, rgba(100, 180, 240, 0), rgba(100, 180, 240, 0)) padding-box,
-                        linear-gradient(135deg, rgba(100, 200, 255, 0.6), rgba(220, 200, 120, 0.4), rgba(100, 200, 255, 0.6)) border-box;
-            animation: borderGlow 2s ease infinite;
-        }
-
-        @keyframes borderGlow {
-            0% { background: linear-gradient(135deg, rgba(100,180,240,0),rgba(100,180,240,0)) padding-box, linear-gradient(135deg, rgba(100,200,255,0.6), rgba(220,200,120,0.4), rgba(100,200,255,0.6)) border-box; }
-            50% { background: linear-gradient(135deg, rgba(100,180,240,0),rgba(100,180,240,0)) padding-box, linear-gradient(135deg, rgba(220,200,120,0.5), rgba(100,200,255,0.6), rgba(220,200,120,0.5)) border-box; }
-            100% { background: linear-gradient(135deg, rgba(100,180,240,0),rgba(100,180,240,0)) padding-box, linear-gradient(135deg, rgba(100,200,255,0.6), rgba(220,200,120,0.4), rgba(100,200,255,0.6)) border-box; }
+        @keyframes cardGlow {
+            0% {
+                box-shadow:
+                    0 0 15px rgba(140, 120, 255, 0.25),
+                    0 0 40px rgba(120, 100, 240, 0.15),
+                    0 0 80px rgba(100, 130, 255, 0.1),
+                    inset 0 0 25px rgba(140, 120, 255, 0.06);
+                border-color: rgba(160, 140, 255, 0.35);
+            }
+            50% {
+                box-shadow:
+                    0 0 20px rgba(120, 140, 255, 0.3),
+                    0 0 50px rgba(150, 120, 240, 0.2),
+                    0 0 90px rgba(130, 110, 255, 0.12),
+                    inset 0 0 30px rgba(130, 140, 255, 0.08);
+                border-color: rgba(140, 160, 255, 0.4);
+            }
+            100% {
+                box-shadow:
+                    0 0 15px rgba(140, 120, 255, 0.25),
+                    0 0 40px rgba(120, 100, 240, 0.15),
+                    0 0 80px rgba(100, 130, 255, 0.1),
+                    inset 0 0 25px rgba(140, 120, 255, 0.06);
+                border-color: rgba(160, 140, 255, 0.35);
+            }
         }
 
         .card-icon {
-            font-size: 2.2rem;
-            margin-bottom: 12px;
+            font-size: 2rem;
+            margin-bottom: 14px;
             display: block;
-            filter: drop-shadow(0 0 8px rgba(130, 200, 255, 0.4));
+            filter: drop-shadow(0 0 10px rgba(140, 150, 255, 0.35));
         }
 
         .card-title {
             font-size: 1.3rem;
-            color: #b8d0f5;
-            margin-bottom: 10px;
-            letter-spacing: 3px;
+            color: #c8d8f8;
+            margin-bottom: 14px;
+            letter-spacing: 4px;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 标题下方小装饰线 */
+        .card-title::after {
+            content: '';
+            display: block;
+            width: 28px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(160, 150, 240, 0.5), transparent);
+            margin: 8px auto 0;
         }
 
         .card-text {
-            font-size: 1rem;
-            color: rgba(200, 210, 240, 0.7);
-            line-height: 1.8;
-            letter-spacing: 1px;
+            font-size: 0.95rem;
+            color: rgba(190, 200, 235, 0.65);
+            line-height: 1.9;
+            letter-spacing: 1.5px;
         }
 
         /* ========== 惊喜按钮 ========== */
@@ -527,20 +573,20 @@
             width: 300px; height: 300px;
         }
 
-        /* ========== 惊喜弹窗 ========== */
+        /* ========== 惊喜弹窗（情书样式） ========== */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(5, 5, 20, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(5, 5, 20, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 2000;
             display: none;
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.5s ease;
         }
 
         .modal-overlay.active {
@@ -549,59 +595,150 @@
         }
 
         .modal-box {
-            background: rgba(20, 30, 60, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(130, 180, 240, 0.3);
-            border-radius: 24px;
-            padding: 40px 30px;
-            max-width: 380px;
+            background: linear-gradient(160deg, rgba(18, 24, 55, 0.85), rgba(25, 18, 50, 0.9));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(140, 130, 220, 0.25);
+            border-radius: 20px;
+            padding: 0;
+            max-width: 420px;
             width: 90%;
             text-align: center;
-            transform: scale(0.8);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.85) translateY(20px);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 40px rgba(120, 100, 200, 0.15),
+                0 0 80px rgba(100, 120, 220, 0.08),
+                inset 0 1px 0 rgba(200, 190, 255, 0.1);
         }
 
         .modal-overlay.active .modal-box {
-            transform: scale(1);
+            transform: scale(1) translateY(0);
+        }
+
+        /* 信封顶部装饰条 */
+        .modal-header-deco {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(140, 160, 255, 0.5), rgba(180, 140, 220, 0.5), rgba(140, 160, 255, 0.5), transparent);
+            margin-bottom: 0;
+        }
+
+        /* 情书内容区 */
+        .modal-letter {
+            padding: 32px 28px 24px;
+            position: relative;
+        }
+
+        /* 左上角装饰花纹 */
+        .modal-letter::before {
+            content: '❀';
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            font-size: 1.1rem;
+            opacity: 0.2;
+            color: #c4b5fd;
+        }
+
+        /* 右下角装饰花纹 */
+        .modal-letter::after {
+            content: '❀';
+            position: absolute;
+            bottom: 10px;
+            left: 14px;
+            font-size: 1.1rem;
+            opacity: 0.2;
+            color: #93c5fd;
+        }
+
+        /* 称呼 - 左上角 */
+        .modal-addressee {
+            text-align: left;
+            font-size: 1.05rem;
+            color: rgba(190, 200, 240, 0.7);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            padding-left: 4px;
         }
 
         .modal-icon {
-            font-size: 3rem;
+            font-size: 1.6rem;
+            display: inline-block;
             margin-bottom: 16px;
-            display: block;
             animation: modalFloat 3s ease infinite;
+            filter: drop-shadow(0 0 8px rgba(140, 130, 255, 0.4));
         }
 
         @keyframes modalFloat {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-6px); }
         }
 
         .modal-text {
-            font-size: 1.4rem;
-            color: #c4d5f7;
-            line-height: 2;
+            font-size: 1.3rem;
+            color: #d0d8f8;
+            line-height: 2.2;
             letter-spacing: 3px;
+            margin-bottom: 24px;
+            padding: 0 8px;
+        }
+
+        /* 落款 - 右下角 */
+        .modal-signature {
+            text-align: right;
+            padding-right: 4px;
             margin-bottom: 20px;
         }
 
+        .modal-signature .sig-line {
+            display: block;
+            font-size: 0.95rem;
+            color: rgba(180, 190, 230, 0.6);
+            letter-spacing: 2px;
+            line-height: 1.8;
+        }
+
+        .modal-signature .sig-name {
+            font-size: 1.15rem;
+            color: rgba(200, 190, 240, 0.8);
+            letter-spacing: 3px;
+        }
+
+        /* 分隔线 */
+        .modal-divider {
+            width: 50px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(160, 150, 240, 0.4), transparent);
+            margin: 0 auto 20px;
+        }
+
         .modal-close {
-            padding: 8px 30px;
+            padding: 10px 32px;
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 1rem;
-            color: rgba(180, 200, 240, 0.8);
-            background: rgba(100, 140, 200, 0.15);
-            border: 1px solid rgba(130, 180, 240, 0.2);
+            color: rgba(190, 200, 240, 0.85);
+            background: rgba(120, 110, 200, 0.12);
+            border: 1px solid rgba(150, 140, 230, 0.2);
             border-radius: 30px;
             cursor: pointer;
             letter-spacing: 3px;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            margin-bottom: 8px;
+            margin-top: 8px;
         }
 
         .modal-close:hover {
-            background: rgba(100, 140, 200, 0.3);
-            border-color: rgba(130, 200, 255, 0.5);
+            background: rgba(130, 120, 220, 0.25);
+            border-color: rgba(160, 150, 240, 0.45);
+            box-shadow: 0 0 20px rgba(140, 130, 240, 0.15);
+        }
+
+        /* 底部装饰条 */
+        .modal-footer-deco {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(140, 160, 255, 0.3), rgba(180, 140, 220, 0.3), rgba(140, 160, 255, 0.3), transparent);
         }
 
         /* ========== 长按彩蛋区域 ========== */
@@ -630,19 +767,16 @@
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: rgba(15, 20, 50, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(130, 180, 240, 0.3);
-            border-radius: 24px;
-            padding: 40px 30px;
-            max-width: 360px;
-            width: 85%;
-            text-align: center;
             z-index: 3000;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            /* 旋转炫光边框容器 */
+            padding: 2px;
+            border-radius: 22px;
+            background: rgba(15, 20, 50, 0.6);
+            max-width: 380px;
+            width: 85%;
         }
 
         .easter-egg-content.show {
@@ -651,17 +785,163 @@
             pointer-events: auto;
         }
 
+        /* 旋转炫光边框 */
+        .easter-egg-content::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            right: -1px; bottom: -1px;
+            border-radius: 22px;
+            background: conic-gradient(
+                from var(--egg-angle, 0deg),
+                transparent 0%,
+                rgba(140, 130, 255, 0.5) 10%,
+                rgba(100, 180, 255, 0.3) 20%,
+                transparent 30%,
+                transparent 50%,
+                rgba(180, 140, 240, 0.4) 60%,
+                rgba(120, 160, 255, 0.3) 70%,
+                transparent 80%
+            );
+            z-index: -1;
+            animation: eggBorderSpin 4s linear infinite;
+        }
+
+        @keyframes eggBorderSpin {
+            to { --egg-angle: 360deg; }
+        }
+
+        /* 注册自定义属性以支持动画 */
+        @property --egg-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        /* 外层光晕（静态box-shadow + opacity呼吸，GPU友好） */
+        .easter-egg-content::after {
+            content: '';
+            position: absolute;
+            top: -6px; left: -6px;
+            right: -6px; bottom: -6px;
+            border-radius: 26px;
+            box-shadow:
+            /* 内阴影：向内收缩 2px，保留原有模糊/透明度 */
+            inset 0 0 20px 2px rgba(140, 130, 255, 0.15),
+            inset 0 0 50px 2px rgba(120, 140, 255, 0.08),
+            /* 如需保留原有外阴影，可保留这两行（可选） */
+            0 0 20px rgba(140, 130, 255, 0.15),
+            0 0 50px rgba(120, 140, 255, 0.08);
+            z-index: -2;
+            animation: eggGlowPulse 3s ease-in-out infinite alternate;
+            will-change: opacity;
+        }
+
+        @keyframes eggGlowPulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* 内容区 */
+        .easter-egg-inner {
+            background: linear-gradient(160deg, rgba(15, 18, 48, 0.92), rgba(22, 16, 45, 0.95));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 36px 30px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 内部微光效果（仅动画opacity，GPU加速流畅） */
+        .easter-egg-inner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(140, 130, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(100, 170, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(180, 140, 240, 0.06) 0%, transparent 40%);
+            pointer-events: none;
+            animation: innerShimmer 4s ease-in-out infinite alternate;
+            will-change: opacity;
+        }
+
+        @keyframes innerShimmer {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* 古典角花装饰 - 左上 */
+        .egg-corner-tl, .egg-corner-tr, .egg-corner-bl, .egg-corner-br {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            opacity: 0.25;
+            color: #c4b5fd;
+            pointer-events: none;
+        }
+        .egg-corner-tl { top: 10px; left: 12px; }
+        .egg-corner-tr { top: 10px; right: 12px; transform: scaleX(-1); }
+        .egg-corner-bl { bottom: 10px; left: 12px; transform: scaleY(-1); }
+        .egg-corner-br { bottom: 10px; right: 12px; transform: scale(-1, -1); }
+
+        .egg-corner-tl::before, .egg-corner-tr::before,
+        .egg-corner-bl::before, .egg-corner-br::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 18px; height: 1px;
+            background: linear-gradient(90deg, rgba(180, 170, 240, 0.6), transparent);
+        }
+        .egg-corner-tl::after, .egg-corner-tr::after,
+        .egg-corner-bl::after, .egg-corner-br::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 1px; height: 18px;
+            background: linear-gradient(180deg, rgba(180, 170, 240, 0.6), transparent);
+        }
+
+        /* 顶部装饰图标 */
+        .egg-top-icon {
+            font-size: 1.4rem;
+            display: block;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 0 12px rgba(140, 130, 255, 0.5));
+            animation: eggIconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes eggIconFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-4px) scale(1.05); }
+        }
+
         .easter-egg-text {
             font-size: 1.3rem;
-            color: #c4d5f7;
-            line-height: 2.2;
+            color: #d0d8f8;
+            line-height: 2.4;
             letter-spacing: 3px;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        /* 文字上下装饰线 */
+        .egg-text-line {
+            display: block;
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(160, 150, 240, 0.45), transparent);
+            margin: 12px auto;
         }
 
         .easter-egg-deco {
-            margin-top: 15px;
-            font-size: 1.5rem;
-            opacity: 0.6;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: rgba(180, 170, 230, 0.4);
+            letter-spacing: 4px;
         }
 
         /* ========== 音乐控制按钮 ========== */
@@ -947,6 +1227,11 @@
             </div>
         </section>
 
+        <!-- 诗句环绕 -->
+        <link rel="stylesheet" href="wordsky.css">
+        <div class="container"></div>
+        <script src="wordsky.js"></script>
+
         <!-- 打字机情话 -->
         <section class="typewriter-section">
             <span class="typewriter-text" id="typewriterText"></span>
@@ -958,17 +1243,17 @@
             <div class="glass-card">
                 <span class="card-icon">🌙</span>
                 <div class="card-title">月下寄思</div>
-                <div class="card-text">月落星沉处，皆是念你时。愿化清风，长伴君侧。</div>
+                <div class="card-text">月落星沉处，皆是念你时。<br>愿化清风，长伴君侧。</div>
             </div>
             <div class="glass-card">
                 <span class="card-icon">🏔️</span>
                 <div class="card-title">山海为盟</div>
-                <div class="card-text">山有木兮木有枝，心悦君兮君不知。今以蓝玫为誓，山海皆可平。</div>
+                <div class="card-text">心悦君兮君不知，<br>今以蓝玫为誓，山海皆可平。</div>
             </div>
             <div class="glass-card">
                 <span class="card-icon">🎐</span>
                 <div class="card-title">风铃传情</div>
-                <div class="card-text">风过檐铃响，声声皆是你。念你无歇，四季不倦。</div>
+                <div class="card-text">风过檐铃响，声声皆是你。<br>念你无歇，四季不倦。</div>
             </div>
         </section>
 
@@ -991,25 +1276,50 @@
         </div>
     </div>
 
-    <!-- 惊喜弹窗 -->
+    <!-- 惊喜弹窗（情书样式） -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
-            <span class="modal-icon">💌</span>
-            <!-- 弹窗情话 - 可修改文案 -->
-            <div class="modal-text" id="modalText">
-                浮世三千，<br>吾爱有三：<br>日、月与卿。<br>日为朝，月为暮，<br>卿为朝朝暮暮。
+            <div class="modal-header-deco"></div>
+            <div class="modal-letter">
+                <!-- 称呼 - 左上角，可修改 -->
+                <div class="modal-addressee">致心上人 · 笪鸣璨</div>
+                <span class="modal-icon">✉</span>
+                <!-- 弹窗情话 - 可修改文案 -->
+                <div class="modal-text" id="modalText">
+                    浮世三千，<br>吾爱有三：<br>日、月与卿。<br>日为朝，月为暮，<br>卿为朝朝暮暮。
+                </div>
+                <div class="modal-divider"></div>
+                <!-- 落款 - 右下角，可修改 -->
+                <div class="modal-signature">
+                    <span class="sig-line">执笔寄情</span>
+                    <span class="sig-line sig-name">曹英俊</span>
+                </div>
             </div>
-            <button class="modal-close" id="modalClose">知悉 · 珍藏于心</button>
+            <div class="modal-footer-deco"></div>
+            <div style="padding: 0 28px 24px; text-align: center;">
+                <button class="modal-close" id="modalClose">知悉 · 珍藏于心</button>
+            </div>
         </div>
     </div>
 
     <!-- 长按彩蛋内容 -->
     <div class="easter-egg-content" id="easterEggContent">
-        <div class="easter-egg-text">
-            见山是山，见海是海，见你是全世界<br>
-            往后余生，四季与你
+        <div class="easter-egg-inner">
+            <!-- 四角古典装饰 -->
+            <div class="egg-corner-tl"></div>
+            <div class="egg-corner-tr"></div>
+            <div class="egg-corner-bl"></div>
+            <div class="egg-corner-br"></div>
+            <!-- 顶部图标 -->
+            <span class="egg-top-icon">🪷</span>
+            <span class="egg-text-line"></span>
+            <div class="easter-egg-text">
+                见山是山，见海是海，见你是全世界<br>
+                往后余生，四季与你
+            </div>
+            <span class="egg-text-line"></span>
+            <div class="easter-egg-deco">— 心有所念 · 必有回响 —</div>
         </div>
-        <div class="easter-egg-deco">🌸 💎 🌸</div>
     </div>
 
     <script>
@@ -1028,7 +1338,8 @@
         const surpriseTexts = [
             "浮世三千，<br>吾爱有三：<br>日、月与卿。<br>日为朝，月为暮，<br>卿为朝朝暮暮。",
             "玲珑骰子安红豆，<br>入骨相思知不知。<br>愿以星河为聘，<br>予你一世欢颜。",
-            "春水初生，春林初盛，<br>春风十里，不如你。<br>蓝玫一朵，<br>胜却人间无数。"
+            "春水初生，春林初盛，<br>春风十里，不如你。<br>蓝玫一朵，<br>胜却人间无数。",
+            "遇见你的那一刻，<br>就是宇宙大爆炸的奇点，<br>自此时间开始，<br>万物生辉。"
         ];
 
         // 情人节目标日期 - 2026年2月14日

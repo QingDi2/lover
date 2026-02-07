@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予你青冥蓝玫，共赴朝夕</title>
+    <!-- 引入中式书法字体 Ma Shan Zheng -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        /* ========== 全局重置与基础样式 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Ma Shan Zheng', cursive, serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            color: #e0d8f0;
+            background: #0a0a1a;
+            cursor: default;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ========== 星空渐变背景 ========== */
+        .starry-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 25%, #0d1b3e 50%, #1a0a3e 75%, #0a0a2e 100%);
+            background-size: 400% 400%;
+            animation: bgFlow 20s ease infinite;
+            z-index: -3;
+        }
+
+        @keyframes bgFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ========== 星星闪烁层 ========== */
+        .stars-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* ========== 中式水墨暗纹叠加 ========== */
+        .ink-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.06;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(100, 140, 200, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(140, 100, 200, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(80, 120, 180, 0.25) 0%, transparent 50%);
+            background-size: 100% 100%;
+            /* 水墨纹理用CSS模拟 */
+            filter: blur(30px);
+        }
+
+        /* 额外水墨笔触装饰 */
+        .ink-overlay::before {
+            content: '';
+            position: absolute;
+            top: 10%; left: 5%;
+            width: 300px; height: 300px;
+            background: radial-gradient(ellipse, rgba(100, 150, 220, 0.15) 0%, transparent 70%);
+            border-radius: 50% 40% 60% 30%;
+            filter: blur(40px);
+        }
+
+        .ink-overlay::after {
+            content: '';
+            position: absolute;
+            bottom: 15%; right: 10%;
+            width: 250px; height: 250px;
+            background: radial-gradient(ellipse, rgba(160, 120, 200, 0.12) 0%, transparent 70%);
+            border-radius: 30% 60% 40% 50%;
+            filter: blur(35px);
+        }
+
+        /* ========== 飘落花瓣容器 ========== */
+        .petals-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            top: -30px;
+            width: 12px;
+            height: 16px;
+            background: radial-gradient(ellipse at 30% 30%, rgba(150, 210, 255, 0.9), rgba(100, 170, 240, 0.5));
+            border-radius: 50% 0 50% 50%;
+            opacity: 0;
+            animation: petalFall linear infinite;
+            filter: blur(0.5px);
+            box-shadow: 0 0 6px rgba(130, 200, 255, 0.3);
+        }
+
+        @keyframes petalFall {
+            0% {
+                opacity: 0;
+                transform: translateY(0) translateX(0) rotate(0deg) scale(0.8);
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) translateX(80px) rotate(360deg) scale(0.4);
+            }
+        }
+
+        /* ========== 鼠标跟随粒子容器 ========== */
+        .particle-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFade 1s ease-out forwards;
+        }
+
+        @keyframes particleFade {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translateY(-20px);
+            }
+        }
+
+        /* ========== 主内容容器 ========== */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ========== 情人节倒计时 ========== */
+        .countdown-section {
+            margin-top: 20px;
+            text-align: center;
+            animation: fadeInDown 1.5s ease;
+        }
+
+        .countdown-label {
+            font-size: 1.1rem;
+            color: rgba(180, 200, 240, 0.8);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .countdown-item {
+            background: rgba(100, 140, 220, 0.1);
+            border: 1px solid rgba(130, 170, 240, 0.25);
+            border-radius: 12px;
+            padding: 10px 14px;
+            min-width: 70px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .countdown-num {
+            font-size: 1.8rem;
+            color: #a0c4ff;
+            text-shadow: 0 0 10px rgba(130, 180, 255, 0.5);
+            display: block;
+            line-height: 1.2;
+        }
+
+        .countdown-unit {
+            font-size: 0.8rem;
+            color: rgba(180, 200, 240, 0.6);
+            letter-spacing: 2px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== 主标题 ========== */
+        .main-title {
+            margin-top: 30px;
+            text-align: center;
+            animation: fadeInDown 2s ease;
+        }
+
+        .main-title h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            background: linear-gradient(135deg, #a0c4ff, #c4b5fd, #a0c4ff, #e0c3fc);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleShimmer 4s ease infinite;
+            text-shadow: none;
+            filter: drop-shadow(0 0 20px rgba(160, 196, 255, 0.3));
+            letter-spacing: 4px;
+        }
+
+        @keyframes titleShimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .main-title .subtitle {
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            color: rgba(180, 200, 240, 0.6);
+            margin-top: 8px;
+            letter-spacing: 6px;
+        }
+
+        /* ========== 3D旋转蓝色玫瑰区域 ========== */
+        .rose-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 800px;
+        }
+
+        .rose-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* 中式圆形描边 */
+        .rose-circle {
+            position: absolute;
+            width: 210px;
+            height: 210px;
+            border: 2px solid rgba(130, 180, 240, 0.3);
+            border-radius: 50%;
+            animation: circleRotate 10s linear infinite;
+        }
+
+        .rose-circle::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: 50%;
+            width: 8px; height: 8px;
+            background: rgba(130, 200, 255, 0.8);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(130, 200, 255, 0.6);
+        }
+
+        .rose-circle-inner {
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            border: 1px dashed rgba(180, 160, 220, 0.2);
+            border-radius: 50%;
+            animation: circleRotate 15s linear infinite reverse;
+        }
+
+        @keyframes circleRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 3D玫瑰花 - SVG绘制 */
+        .rose-3d {
+            position: relative;
+            width: 140px;
+            height: 160px;
+            animation: roseFloat 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px rgba(100, 170, 255, 0.6))
+                    drop-shadow(0 0 50px rgba(130, 140, 220, 0.3));
+        }
+
+        .rose-3d svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes roseFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.03); }
+        }
+
+        /* 点击玫瑰提示 */
+        .rose-hint {
+            position: absolute;
+            bottom: -50px;
+            font-size: 0.8rem;
+            color: rgba(160, 196, 255, 0.5);
+            letter-spacing: 2px;
+            animation: hintPulse 2s ease infinite;
+        }
+
+        @keyframes hintPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* ========== 爱心+花瓣爆破动画 ========== */
+        .burst-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            animation: burstAnim 1.2s ease-out forwards;
+        }
+
+        .burst-heart {
+            font-size: 20px;
+            color: #7ec8ff;
+            text-shadow: 0 0 10px rgba(130, 200, 255, 0.6);
+        }
+
+        .burst-petal-piece {
+            width: 10px;
+            height: 14px;
+            background: linear-gradient(135deg, rgba(130, 200, 255, 0.9), rgba(160, 140, 220, 0.7));
+            border-radius: 50% 0 50% 50%;
+        }
+
+        @keyframes burstAnim {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0.3) rotate(var(--rot));
+            }
+        }
+
+        /* ========== 打字机情话区域 ========== */
+        .typewriter-section {
+            margin-top: 50px;
+            text-align: center;
+            min-height: 60px;
+        }
+
+        .typewriter-text {
+            font-size: clamp(1.3rem, 3.5vw, 2rem);
+            color: #c4d5f7;
+            letter-spacing: 4px;
+            display: inline;
+            text-shadow: 0 0 15px rgba(150, 190, 255, 0.3);
+        }
+
+        /* 毛笔笔触光标 */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.5em;
+            background: linear-gradient(to bottom, rgba(200, 180, 140, 0.9), rgba(160, 140, 100, 0.3));
+            margin-left: 4px;
+            vertical-align: text-bottom;
+            border-radius: 1px 1px 3px 0;
+            animation: brushBlink 1s step-end infinite;
+            /* 毛笔笔触：顶部粗底部细 */
+            clip-path: polygon(0 0, 100% 0, 60% 100%, 0% 100%);
+        }
+
+        @keyframes brushBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ========== 磨砂玻璃中式卡片 ========== */
+        .cards-section {
+            margin-top: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            padding: 0 20px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .glass-card {
+            background: rgba(30, 40, 80, 0.35);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(130, 180, 240, 0.2);
+            border-radius: 20px;
+            padding: 30px 24px;
+            width: 260px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(100, 180, 240, 0), rgba(100, 180, 240, 0)) padding-box,
+                        linear-gradient(135deg, rgba(100, 180, 240, 0.2), rgba(180, 160, 100, 0.1)) border-box;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 10px 40px rgba(100, 160, 240, 0.15),
+                0 0 30px rgba(130, 180, 255, 0.1),
+                inset 0 0 30px rgba(100, 160, 240, 0.05);
+            border-color: transparent;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+            background: linear-gradient(135deg, rgba(100, 180, 240, 0), rgba(100, 180, 240, 0)) padding-box,
+                        linear-gradient(135deg, rgba(100, 200, 255, 0.6), rgba(220, 200, 120, 0.4), rgba(100, 200, 255, 0.6)) border-box;
+            animation: borderGlow 2s ease infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { background: linear-gradient(135deg, rgba(100,180,240,0),rgba(100,180,240,0)) padding-box, linear-gradient(135deg, rgba(100,200,255,0.6), rgba(220,200,120,0.4), rgba(100,200,255,0.6)) border-box; }
+            50% { background: linear-gradient(135deg, rgba(100,180,240,0),rgba(100,180,240,0)) padding-box, linear-gradient(135deg, rgba(220,200,120,0.5), rgba(100,200,255,0.6), rgba(220,200,120,0.5)) border-box; }
+            100% { background: linear-gradient(135deg, rgba(100,180,240,0),rgba(100,180,240,0)) padding-box, linear-gradient(135deg, rgba(100,200,255,0.6), rgba(220,200,120,0.4), rgba(100,200,255,0.6)) border-box; }
+        }
+
+        .card-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 0 8px rgba(130, 200, 255, 0.4));
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: #b8d0f5;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: rgba(200, 210, 240, 0.7);
+            line-height: 1.8;
+            letter-spacing: 1px;
+        }
+
+        /* ========== 惊喜按钮 ========== */
+        .surprise-btn {
+            margin-top: 50px;
+            padding: 14px 40px;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.2rem;
+            color: #c4d5f7;
+            background: linear-gradient(135deg, rgba(80, 120, 200, 0.3), rgba(140, 100, 200, 0.3));
+            border: 1px solid rgba(130, 180, 240, 0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            letter-spacing: 4px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .surprise-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(130, 200, 255, 0.15);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+        }
+
+        .surprise-btn:hover {
+            border-color: rgba(130, 200, 255, 0.6);
+            box-shadow: 0 0 30px rgba(100, 170, 255, 0.2), inset 0 0 20px rgba(100, 170, 255, 0.05);
+            transform: scale(1.05);
+        }
+
+        .surprise-btn:hover::before {
+            width: 300px; height: 300px;
+        }
+
+        /* ========== 惊喜弹窗 ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(5, 5, 20, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-box {
+            background: rgba(20, 30, 60, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(130, 180, 240, 0.3);
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+            animation: modalFloat 3s ease infinite;
+        }
+
+        @keyframes modalFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .modal-text {
+            font-size: 1.4rem;
+            color: #c4d5f7;
+            line-height: 2;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            padding: 8px 30px;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1rem;
+            color: rgba(180, 200, 240, 0.8);
+            background: rgba(100, 140, 200, 0.15);
+            border: 1px solid rgba(130, 180, 240, 0.2);
+            border-radius: 30px;
+            cursor: pointer;
+            letter-spacing: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(100, 140, 200, 0.3);
+            border-color: rgba(130, 200, 255, 0.5);
+        }
+
+        /* ========== 长按彩蛋区域 ========== */
+        .easter-egg-zone {
+            margin-top: 50px;
+            padding: 20px 30px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+        }
+
+        .easter-egg-hint {
+            font-size: 0.9rem;
+            color: rgba(160, 180, 220, 0.4);
+            letter-spacing: 3px;
+            transition: color 0.3s ease;
+        }
+
+        .easter-egg-hint:hover {
+            color: rgba(160, 180, 220, 0.6);
+        }
+
+        .easter-egg-content {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(15, 20, 50, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(130, 180, 240, 0.3);
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 360px;
+            width: 85%;
+            text-align: center;
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .easter-egg-content.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        .easter-egg-text {
+            font-size: 1.3rem;
+            color: #c4d5f7;
+            line-height: 2.2;
+            letter-spacing: 3px;
+        }
+
+        .easter-egg-deco {
+            margin-top: 15px;
+            font-size: 1.5rem;
+            opacity: 0.6;
+        }
+
+        /* ========== 音乐控制按钮 ========== */
+        .music-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(30, 40, 80, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(130, 180, 240, 0.25);
+            color: #a0c4ff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 5000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .music-btn:hover {
+            background: rgba(50, 60, 100, 0.5);
+            border-color: rgba(130, 200, 255, 0.5);
+            box-shadow: 0 0 15px rgba(100, 170, 255, 0.2);
+        }
+
+        .music-btn.playing .music-icon {
+            animation: musicSpin 2s linear infinite;
+        }
+
+        @keyframes musicSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== 底部装饰 ========== */
+        .footer-deco {
+            margin-top: 60px;
+            margin-bottom: 40px;
+            text-align: center;
+            opacity: 0.4;
+        }
+
+        .footer-deco .line {
+            display: inline-block;
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(130, 180, 240, 0.5), transparent);
+            vertical-align: middle;
+            margin: 0 12px;
+        }
+
+        .footer-deco .dot {
+            font-size: 0.6rem;
+            color: rgba(130, 180, 240, 0.6);
+        }
+
+        .footer-text {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: rgba(160, 180, 220, 0.3);
+            letter-spacing: 4px;
+        }
+
+        /* ========== 响应式适配 ========== */
+        @media (max-width: 768px) {
+            .cards-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .glass-card {
+                width: 90%;
+                max-width: 320px;
+            }
+
+            .countdown-item {
+                min-width: 60px;
+                padding: 8px 10px;
+            }
+
+            .countdown-num {
+                font-size: 1.5rem;
+            }
+
+            .rose-wrapper {
+                width: 180px;
+                height: 180px;
+            }
+
+            .rose-circle {
+                width: 170px;
+                height: 170px;
+            }
+
+            .rose-circle-inner {
+                width: 155px;
+                height: 155px;
+            }
+
+            .rose-3d {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .countdown-item {
+                min-width: 55px;
+                padding: 6px 8px;
+            }
+
+            .surprise-btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* ========== 加载动画 ========== */
+        .page-loader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #0a0a1a;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-text {
+            font-size: 1.5rem;
+            color: #a0c4ff;
+            letter-spacing: 6px;
+            animation: loaderPulse 1.5s ease infinite;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 页面加载动画 -->
+    <div class="page-loader" id="pageLoader">
+        <span class="loader-text">蓝玫映星河...</span>
+    </div>
+
+    <!-- 星空渐变背景 -->
+    <div class="starry-bg"></div>
+
+    <!-- 星星闪烁画布 -->
+    <canvas class="stars-canvas" id="starsCanvas"></canvas>
+
+    <!-- 中式水墨暗纹 -->
+    <div class="ink-overlay"></div>
+
+    <!-- 飘落花瓣容器 -->
+    <div class="petals-container" id="petalsContainer"></div>
+
+    <!-- 鼠标跟随粒子容器 -->
+    <div class="particle-container" id="particleContainer"></div>
+
+    <!-- 背景音乐 - 可替换为其他免费音乐外链 -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://cdn.pixabay.com/audio/2024/11/01/audio_4956b4edd1.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 音乐控制按钮 -->
+    <button class="music-btn" id="musicBtn" title="背景音乐">
+        <span class="music-icon">♪</span>
+    </button>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+
+        <!-- 情人节倒计时 -->
+        <section class="countdown-section">
+            <div class="countdown-label">— 距离情人节 —</div>
+            <div class="countdown-timer" id="countdownTimer">
+                <div class="countdown-item">
+                    <span class="countdown-num" id="cdDays">0</span>
+                    <span class="countdown-unit">天</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-num" id="cdHours">0</span>
+                    <span class="countdown-unit">时</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-num" id="cdMins">0</span>
+                    <span class="countdown-unit">分</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-num" id="cdSecs">0</span>
+                    <span class="countdown-unit">秒</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主标题 - 可修改文案 -->
+        <section class="main-title">
+            <h1>予你青冥蓝玫，共赴朝夕</h1>
+            <div class="subtitle">青衿寄情 · 蓝玫予你</div>
+        </section>
+
+        <!-- 3D旋转蓝色玫瑰 -->
+        <section class="rose-section">
+            <div class="rose-wrapper" id="roseWrapper">
+                <div class="rose-circle"></div>
+                <div class="rose-circle-inner"></div>
+                <div class="rose-3d" id="rose3d">
+                    <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="rg1" cx="50%" cy="40%"><stop offset="0%" stop-color="#c7e2ff"/><stop offset="100%" stop-color="#4a8ee6"/></radialGradient>
+                            <radialGradient id="rg2" cx="50%" cy="40%"><stop offset="0%" stop-color="#a8d4ff"/><stop offset="100%" stop-color="#5b6abf"/></radialGradient>
+                            <radialGradient id="rg3" cx="50%" cy="40%"><stop offset="0%" stop-color="#b8e0ff"/><stop offset="100%" stop-color="#6e7fd9"/></radialGradient>
+                            <radialGradient id="rg4" cx="50%" cy="50%"><stop offset="0%" stop-color="#dbeeff"/><stop offset="100%" stop-color="#7baae8"/></radialGradient>
+                            <radialGradient id="rg5" cx="50%" cy="40%"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="100%" stop-color="#90b8f0"/></radialGradient>
+                            <radialGradient id="rgCore" cx="50%" cy="50%"><stop offset="0%" stop-color="#f0f7ff"/><stop offset="60%" stop-color="#c4dcf8"/><stop offset="100%" stop-color="#8ab4e8"/></radialGradient>
+                            <filter id="roseGlow"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        </defs>
+                        <!-- 花茎 -->
+                        <path d="M100 158 Q99 180 97 210 Q96 235 97 255" stroke="#4ade80" stroke-width="3" fill="none" opacity="0.65"/>
+                        <!-- 叶子 -->
+                        <path d="M97 195 Q82 185 72 190 Q80 180 97 188" fill="#4ade80" opacity="0.45"/>
+                        <path d="M97 218 Q112 210 120 214 Q110 220 97 215" fill="#4ade80" opacity="0.45"/>
+                        <!-- 花萼 -->
+                        <path d="M92 158 Q87 150 82 156 Q89 153 96 160" fill="#34d399" opacity="0.55"/>
+                        <path d="M108 158 Q113 150 118 156 Q111 153 104 160" fill="#34d399" opacity="0.55"/>
+                        <path d="M100 156 Q100 148 100 155" stroke="#34d399" stroke-width="2" fill="none" opacity="0.4"/>
+
+                        <!-- === 花朵实心底色（消除所有缝隙） === -->
+                        <ellipse cx="100" cy="105" rx="52" ry="50" fill="#5a8fd4" opacity="1"/>
+
+                        <!-- === 外层花瓣（5片，大而圆润） === -->
+                        <path d="M100 60 Q125 45 145 60 Q160 80 150 110 Q140 135 115 145 Q100 130 100 100 Z" fill="url(#rg1)" filter="url(#roseGlow)"/>
+                        <path d="M100 60 Q75 45 55 60 Q40 80 50 110 Q60 135 85 145 Q100 130 100 100 Z" fill="url(#rg2)" filter="url(#roseGlow)"/>
+                        <path d="M55 75 Q38 95 45 120 Q55 148 85 155 Q95 140 90 115 Q85 90 70 75 Z" fill="url(#rg3)" filter="url(#roseGlow)"/>
+                        <path d="M145 75 Q162 95 155 120 Q145 148 115 155 Q105 140 110 115 Q115 90 130 75 Z" fill="url(#rg1)" filter="url(#roseGlow)"/>
+                        <path d="M65 60 Q50 70 48 95 Q48 120 65 140 Q80 148 95 140 Q85 120 78 95 Q72 72 75 60 Z" fill="url(#rg2)" opacity="0.9"/>
+
+                        <!-- === 中层花瓣（4片，稍小，覆盖内部） === -->
+                        <path d="M100 70 Q120 62 135 78 Q145 100 130 130 Q115 145 100 135 Q100 115 100 95 Z" fill="url(#rg4)" opacity="0.92"/>
+                        <path d="M100 70 Q80 62 65 78 Q55 100 70 130 Q85 145 100 135 Q100 115 100 95 Z" fill="url(#rg3)" opacity="0.92"/>
+                        <path d="M60 90 Q55 110 65 130 Q78 148 100 140 Q95 125 88 108 Q80 92 68 85 Z" fill="url(#rg5)" opacity="0.88"/>
+                        <path d="M140 90 Q145 110 135 130 Q122 148 100 140 Q105 125 112 108 Q120 92 132 85 Z" fill="url(#rg4)" opacity="0.88"/>
+
+                        <!-- === 内层花瓣（4片，紧密包裹中心） === -->
+                        <path d="M100 80 Q115 78 125 92 Q130 110 118 130 Q108 138 100 130 Q100 112 100 95 Z" fill="url(#rg5)" opacity="0.93"/>
+                        <path d="M100 80 Q85 78 75 92 Q70 110 82 130 Q92 138 100 130 Q100 112 100 95 Z" fill="url(#rg4)" opacity="0.93"/>
+                        <path d="M78 95 Q72 108 78 125 Q88 138 100 132 Q96 120 92 108 Q88 98 82 92 Z" fill="url(#rg5)" opacity="0.9"/>
+                        <path d="M122 95 Q128 108 122 125 Q112 138 100 132 Q104 120 108 108 Q112 98 118 92 Z" fill="url(#rg4)" opacity="0.9"/>
+
+                        <!-- === 花蕊卷曲（螺旋形，填满中心） === -->
+                        <path d="M100 88 Q110 86 115 98 Q118 112 108 125 Q100 130 100 118 Q100 105 100 95 Z" fill="#d4e8fc" opacity="0.94"/>
+                        <path d="M100 88 Q90 86 85 98 Q82 112 92 125 Q100 130 100 118 Q100 105 100 95 Z" fill="#ddeeff" opacity="0.94"/>
+                        <path d="M95 95 Q88 105 92 118 Q97 128 100 122 Q98 112 96 102 Z" fill="#e6f1ff" opacity="0.92"/>
+                        <path d="M105 95 Q112 105 108 118 Q103 128 100 122 Q102 112 104 102 Z" fill="#e0edff" opacity="0.92"/>
+
+                        <!-- === 花蕊中心（实心，最亮） === -->
+                        <ellipse cx="100" cy="110" rx="12" ry="14" fill="url(#rgCore)" opacity="0.95"/>
+                        <ellipse cx="100" cy="108" rx="7" ry="8" fill="#f0f7ff" opacity="0.9"/>
+                        <ellipse cx="100" cy="107" rx="3" ry="4" fill="#ffffff" opacity="0.7"/>
+                    </svg>
+                </div>
+                <span class="rose-hint">轻触玫瑰，绽放心意</span>
+            </div>
+        </section>
+
+        <!-- 打字机情话 -->
+        <section class="typewriter-section">
+            <span class="typewriter-text" id="typewriterText"></span>
+            <span class="typewriter-cursor"></span>
+        </section>
+
+        <!-- 磨砂玻璃中式卡片 - 可修改文案 -->
+        <section class="cards-section">
+            <div class="glass-card">
+                <span class="card-icon">🌙</span>
+                <div class="card-title">月下寄思</div>
+                <div class="card-text">月落星沉处，皆是念你时。愿化清风，长伴君侧。</div>
+            </div>
+            <div class="glass-card">
+                <span class="card-icon">🏔️</span>
+                <div class="card-title">山海为盟</div>
+                <div class="card-text">山有木兮木有枝，心悦君兮君不知。今以蓝玫为誓，山海皆可平。</div>
+            </div>
+            <div class="glass-card">
+                <span class="card-icon">🎐</span>
+                <div class="card-title">风铃传情</div>
+                <div class="card-text">风过檐铃响，声声皆是你。念你无歇，四季不倦。</div>
+            </div>
+        </section>
+
+        <!-- 惊喜按钮 -->
+        <button class="surprise-btn" id="surpriseBtn">
+            ✦ 启封一封情书 ✦
+        </button>
+
+        <!-- 长按彩蛋区域 -->
+        <div class="easter-egg-zone" id="easterEggZone">
+            <div class="easter-egg-hint">「 长按此处，聆听心声 」</div>
+        </div>
+
+        <!-- 底部装饰 -->
+        <div class="footer-deco">
+            <span class="line"></span>
+            <span class="dot">◆</span>
+            <span class="line"></span>
+            <div class="footer-text">心悦君兮 · 念你无歇</div>
+        </div>
+    </div>
+
+    <!-- 惊喜弹窗 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <span class="modal-icon">💌</span>
+            <!-- 弹窗情话 - 可修改文案 -->
+            <div class="modal-text" id="modalText">
+                浮世三千，<br>吾爱有三：<br>日、月与卿。<br>日为朝，月为暮，<br>卿为朝朝暮暮。
+            </div>
+            <button class="modal-close" id="modalClose">知悉 · 珍藏于心</button>
+        </div>
+    </div>
+
+    <!-- 长按彩蛋内容 -->
+    <div class="easter-egg-content" id="easterEggContent">
+        <div class="easter-egg-text">
+            见山是山，见海是海，见你是全世界<br>
+            往后余生，四季与你
+        </div>
+        <div class="easter-egg-deco">🌸 💎 🌸</div>
+    </div>
+
+    <script>
+        /* ========================================
+         *  全局变量与配置 - 可在此修改文案
+         * ======================================== */
+
+        // 打字机情话列表 - 可修改/增加
+        const typewriterPhrases = [
+            "温酒煮茶，与你岁岁",
+            "蓝玫寄意，山海为盟",
+            "心悦于你，无问西东"
+        ];
+
+        // 惊喜弹窗情话列表 - 随机显示一句
+        const surpriseTexts = [
+            "浮世三千，<br>吾爱有三：<br>日、月与卿。<br>日为朝，月为暮，<br>卿为朝朝暮暮。",
+            "玲珑骰子安红豆，<br>入骨相思知不知。<br>愿以星河为聘，<br>予你一世欢颜。",
+            "春水初生，春林初盛，<br>春风十里，不如你。<br>蓝玫一朵，<br>胜却人间无数。"
+        ];
+
+        // 情人节目标日期 - 2026年2月14日
+        const valentineDate = new Date('2026-02-14T00:00:00');
+
+        /* ========================================
+         *  页面加载完成
+         * ======================================== */
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('pageLoader').classList.add('hidden');
+            }, 1200);
+
+            initStars();
+            initPetals();
+            initTypewriter();
+            initCountdown();
+            initParticles();
+            initSurprise();
+            initEasterEgg();
+            initRoseClick();
+            initMusic();
+        });
+
+        /* ========================================
+         *  星星闪烁效果
+         * ======================================== */
+        function initStars() {
+            const canvas = document.getElementById('starsCanvas');
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+            let shootingStars = [];
+            const STAR_COUNT = 250;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                // 重新分布星星位置
+                stars.forEach(s => {
+                    s.x = Math.random() * canvas.width;
+                    s.y = Math.random() * canvas.height;
+                });
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            // 创建星星 - 不同类型有不同闪烁行为
+            for (let i = 0; i < STAR_COUNT; i++) {
+                const r = Math.random();
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    baseSize: Math.random() * 2.2 + 0.4,
+                    maxOpacity: 0.3 + Math.random() * 0.7,
+                    // 闪烁速度：快中慢三档，让星空有层次感
+                    twinkleSpeed: r < 0.3 ? (1.5 + Math.random() * 2) : r < 0.7 ? (3 + Math.random() * 3) : (5 + Math.random() * 4),
+                    phase: Math.random() * Math.PI * 2,
+                    // 随机闪烁偏移，让每颗星独立
+                    flickerTimer: Math.random() * 1000,
+                    // 是否会突然闪亮
+                    canFlash: Math.random() < 0.15,
+                    flashTime: 0,
+                    // 颜色
+                    r: Math.random() > 0.5 ? (150 + Math.random()*60) : (180 + Math.random()*40),
+                    g: Math.random() > 0.5 ? (190 + Math.random()*50) : (160 + Math.random()*40),
+                    b: Math.random() > 0.5 ? 255 : (220 + Math.random()*35)
+                });
+            }
+
+            // 偶尔产生流星
+            function spawnShootingStar() {
+                shootingStars.push({
+                    x: Math.random() * canvas.width * 0.8,
+                    y: Math.random() * canvas.height * 0.3,
+                    len: 60 + Math.random() * 80,
+                    speed: 4 + Math.random() * 4,
+                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+                    life: 1.0
+                });
+                // 下一颗流星间隔 4~10秒
+                setTimeout(spawnShootingStar, 4000 + Math.random() * 6000);
+            }
+            setTimeout(spawnShootingStar, 2000);
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const time = Date.now() * 0.001;
+
+                stars.forEach(star => {
+                    // 多层正弦叠加，产生自然闪烁
+                    const t1 = Math.sin(time * star.twinkleSpeed + star.phase);
+                    const t2 = Math.sin(time * star.twinkleSpeed * 0.7 + star.phase * 1.3);
+                    let twinkle = (t1 * 0.5 + t2 * 0.3 + 0.8) * 0.6;
+                    twinkle = Math.max(0.05, Math.min(1, twinkle));
+
+                    // 随机突然闪亮效果
+                    let flashBoost = 0;
+                    if (star.canFlash) {
+                        if (star.flashTime <= 0 && Math.random() < 0.002) {
+                            star.flashTime = 0.4 + Math.random() * 0.3;
+                        }
+                        if (star.flashTime > 0) {
+                            flashBoost = Math.sin(star.flashTime * Math.PI / 0.7) * 0.6;
+                            star.flashTime -= 0.016;
+                        }
+                    }
+
+                    const alpha = Math.min(1, star.maxOpacity * twinkle + flashBoost);
+                    const size = star.baseSize * (0.8 + twinkle * 0.4 + flashBoost * 0.5);
+
+                    // 画星星核心
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha})`;
+                    ctx.fill();
+
+                    // 较大的星星画十字光芒
+                    if (size > 1.8 || flashBoost > 0.2) {
+                        const glowAlpha = alpha * 0.4;
+                        const glowLen = size * 3;
+                        ctx.strokeStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${glowAlpha})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(star.x - glowLen, star.y);
+                        ctx.lineTo(star.x + glowLen, star.y);
+                        ctx.moveTo(star.x, star.y - glowLen);
+                        ctx.lineTo(star.x, star.y + glowLen);
+                        ctx.stroke();
+                    }
+
+                    // 光晕
+                    if (size > 1.5) {
+                        ctx.beginPath();
+                        ctx.arc(star.x, star.y, size * 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha * 0.1})`;
+                        ctx.fill();
+                    }
+                });
+
+                // 绘制流星
+                shootingStars.forEach((ss, idx) => {
+                    const dx = Math.cos(ss.angle) * ss.speed;
+                    const dy = Math.sin(ss.angle) * ss.speed;
+                    ss.x += dx;
+                    ss.y += dy;
+                    ss.life -= 0.012;
+
+                    if (ss.life > 0) {
+                        const tailX = ss.x - Math.cos(ss.angle) * ss.len;
+                        const tailY = ss.y - Math.sin(ss.angle) * ss.len;
+                        const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+                        grad.addColorStop(0, `rgba(160, 200, 255, 0)`);
+                        grad.addColorStop(1, `rgba(200, 220, 255, ${ss.life * 0.8})`);
+                        ctx.beginPath();
+                        ctx.moveTo(tailX, tailY);
+                        ctx.lineTo(ss.x, ss.y);
+                        ctx.strokeStyle = grad;
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                        // 流星头部亮点
+                        ctx.beginPath();
+                        ctx.arc(ss.x, ss.y, 2, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(220, 240, 255, ${ss.life})`;
+                        ctx.fill();
+                    } else {
+                        shootingStars.splice(idx, 1);
+                    }
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        /* ========================================
+         *  飘落花瓣动画
+         * ======================================== */
+        function initPetals() {
+            const container = document.getElementById('petalsContainer');
+            const PETAL_COUNT = 15;
+
+            function createPetal() {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+
+                // 随机位置和大小
+                const left = Math.random() * 100;
+                const size = Math.random() * 8 + 8;
+                const duration = Math.random() * 8 + 8;
+                const delay = Math.random() * 10;
+                const swayAmount = (Math.random() - 0.5) * 150;
+
+                petal.style.left = left + '%';
+                petal.style.width = size + 'px';
+                petal.style.height = (size * 1.3) + 'px';
+                petal.style.animationDuration = duration + 's';
+                petal.style.animationDelay = delay + 's';
+
+                // 随机花瓣颜色（碎冰蓝系列）
+                const hue = 195 + Math.random() * 20;
+                const sat = 70 + Math.random() * 20;
+                const light = 75 + Math.random() * 15;
+                petal.style.background = `radial-gradient(ellipse at 30% 30%, hsla(${hue}, ${sat}%, ${light}%, 0.9), hsla(${hue}, ${sat}%, ${light - 20}%, 0.4))`;
+
+                container.appendChild(petal);
+
+                // 动画结束后重新创建
+                petal.addEventListener('animationend', () => {
+                    petal.remove();
+                    createPetal();
+                });
+
+                // 超时清理（防止动画不触发）
+                setTimeout(() => {
+                    if (petal.parentNode) {
+                        petal.remove();
+                        createPetal();
+                    }
+                }, (duration + delay) * 1000 + 500);
+            }
+
+            for (let i = 0; i < PETAL_COUNT; i++) {
+                setTimeout(() => createPetal(), i * 600);
+            }
+        }
+
+        /* ========================================
+         *  鼠标跟随星光粒子
+         * ======================================== */
+        function initParticles() {
+            const container = document.getElementById('particleContainer');
+            let lastTime = 0;
+            const THROTTLE = 40; // 节流间隔ms
+
+            function createParticle(x, y) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = Math.random() * 6 + 3;
+                const offsetX = (Math.random() - 0.5) * 20;
+                const offsetY = (Math.random() - 0.5) * 20;
+
+                // 青紫渐变色
+                const colors = [
+                    'rgba(130, 200, 255, 0.8)',
+                    'rgba(160, 140, 220, 0.8)',
+                    'rgba(100, 180, 240, 0.8)',
+                    'rgba(180, 160, 255, 0.7)',
+                    'rgba(140, 220, 255, 0.8)'
+                ];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = (x + offsetX) + 'px';
+                particle.style.top = (y + offsetY) + 'px';
+                particle.style.background = `radial-gradient(circle, ${color}, transparent)`;
+                particle.style.boxShadow = `0 0 ${size}px ${color}`;
+
+                container.appendChild(particle);
+
+                setTimeout(() => particle.remove(), 1000);
+            }
+
+            document.addEventListener('mousemove', (e) => {
+                const now = Date.now();
+                if (now - lastTime < THROTTLE) return;
+                lastTime = now;
+
+                for (let i = 0; i < 3; i++) {
+                    createParticle(e.clientX, e.clientY);
+                }
+            });
+
+            // 触摸设备支持
+            document.addEventListener('touchmove', (e) => {
+                const now = Date.now();
+                if (now - lastTime < THROTTLE) return;
+                lastTime = now;
+
+                const touch = e.touches[0];
+                for (let i = 0; i < 2; i++) {
+                    createParticle(touch.clientX, touch.clientY);
+                }
+            }, { passive: true });
+        }
+
+        /* ========================================
+         *  打字机效果
+         * ======================================== */
+        function initTypewriter() {
+            const textEl = document.getElementById('typewriterText');
+            let phraseIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            function type() {
+                const currentPhrase = typewriterPhrases[phraseIndex];
+
+                if (!isDeleting) {
+                    // 打字
+                    textEl.textContent = currentPhrase.substring(0, charIndex + 1);
+                    charIndex++;
+
+                    if (charIndex === currentPhrase.length) {
+                        // 打完一句，停顿后开始删除
+                        setTimeout(() => {
+                            isDeleting = true;
+                            type();
+                        }, 2500);
+                        return;
+                    }
+                    setTimeout(type, 150);
+                } else {
+                    // 删除
+                    textEl.textContent = currentPhrase.substring(0, charIndex - 1);
+                    charIndex--;
+
+                    if (charIndex === 0) {
+                        isDeleting = false;
+                        phraseIndex = (phraseIndex + 1) % typewriterPhrases.length;
+                        setTimeout(type, 500);
+                        return;
+                    }
+                    setTimeout(type, 80);
+                }
+            }
+
+            setTimeout(type, 2000);
+        }
+
+        /* ========================================
+         *  情人节倒计时
+         * ======================================== */
+        function initCountdown() {
+            const daysEl = document.getElementById('cdDays');
+            const hoursEl = document.getElementById('cdHours');
+            const minsEl = document.getElementById('cdMins');
+            const secsEl = document.getElementById('cdSecs');
+
+            function update() {
+                const now = new Date();
+                const diff = valentineDate - now;
+
+                if (diff <= 0) {
+                    daysEl.textContent = '0';
+                    hoursEl.textContent = '0';
+                    minsEl.textContent = '0';
+                    secsEl.textContent = '0';
+                    document.querySelector('.countdown-label').textContent = '— 情人节快乐 —';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                daysEl.textContent = days;
+                hoursEl.textContent = String(hours).padStart(2, '0');
+                minsEl.textContent = String(mins).padStart(2, '0');
+                secsEl.textContent = String(secs).padStart(2, '0');
+            }
+
+            update();
+            setInterval(update, 1000);
+        }
+
+        /* ========================================
+         *  惊喜弹窗
+         * ======================================== */
+        function initSurprise() {
+            const btn = document.getElementById('surpriseBtn');
+            const overlay = document.getElementById('modalOverlay');
+            const closeBtn = document.getElementById('modalClose');
+            const modalText = document.getElementById('modalText');
+
+            btn.addEventListener('click', () => {
+                // 随机选择一句情话
+                const randomText = surpriseTexts[Math.floor(Math.random() * surpriseTexts.length)];
+                modalText.innerHTML = randomText;
+                overlay.classList.add('active');
+            });
+
+            closeBtn.addEventListener('click', () => {
+                overlay.classList.remove('active');
+            });
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        }
+
+        /* ========================================
+         *  长按彩蛋
+         * ======================================== */
+        function initEasterEgg() {
+            const zone = document.getElementById('easterEggZone');
+            const content = document.getElementById('easterEggContent');
+            let pressTimer = null;
+            let isShowing = false;
+
+            function showEgg() {
+                content.classList.add('show');
+                isShowing = true;
+            }
+
+            function hideEgg() {
+                content.classList.remove('show');
+                isShowing = false;
+            }
+
+            // 鼠标长按
+            zone.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                pressTimer = setTimeout(showEgg, 800);
+            });
+
+            zone.addEventListener('mouseup', () => {
+                clearTimeout(pressTimer);
+            });
+
+            zone.addEventListener('mouseleave', () => {
+                clearTimeout(pressTimer);
+            });
+
+            // 触摸长按
+            zone.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                pressTimer = setTimeout(showEgg, 800);
+            }, { passive: false });
+
+            zone.addEventListener('touchend', () => {
+                clearTimeout(pressTimer);
+            });
+
+            // 点击其他区域关闭彩蛋
+            document.addEventListener('click', (e) => {
+                if (isShowing && !content.contains(e.target) && !zone.contains(e.target)) {
+                    hideEgg();
+                }
+            });
+
+            document.addEventListener('touchstart', (e) => {
+                if (isShowing && !content.contains(e.target) && !zone.contains(e.target)) {
+                    hideEgg();
+                }
+            }, { passive: true });
+        }
+
+        /* ========================================
+         *  点击玫瑰 - 爱心+花瓣爆破
+         * ======================================== */
+        function initRoseClick() {
+            const roseWrapper = document.getElementById('roseWrapper');
+
+            roseWrapper.addEventListener('click', (e) => {
+                const rect = roseWrapper.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+
+                createBurst(cx, cy);
+            });
+        }
+
+        function createBurst(cx, cy) {
+            const PARTICLE_COUNT = 20;
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const el = document.createElement('div');
+                el.className = 'burst-particle';
+
+                // 随机方向
+                const angle = (Math.PI * 2 * i) / PARTICLE_COUNT + (Math.random() - 0.5) * 0.5;
+                const distance = 60 + Math.random() * 100;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 30;
+                const rot = Math.random() * 720 - 360;
+
+                el.style.left = cx + 'px';
+                el.style.top = cy + 'px';
+                el.style.setProperty('--tx', tx + 'px');
+                el.style.setProperty('--ty', ty + 'px');
+                el.style.setProperty('--rot', rot + 'deg');
+
+                // 交替爱心和花瓣
+                if (i % 3 === 0) {
+                    el.innerHTML = '<span class="burst-heart">♥</span>';
+                    // 碎冰蓝渐变色
+                    const hue = 195 + Math.random() * 30;
+                    el.querySelector('.burst-heart').style.color = `hsl(${hue}, 80%, 75%)`;
+                    el.querySelector('.burst-heart').style.textShadow = `0 0 10px hsla(${hue}, 80%, 75%, 0.6)`;
+                    el.querySelector('.burst-heart').style.fontSize = (16 + Math.random() * 12) + 'px';
+                } else {
+                    const petal = document.createElement('div');
+                    petal.className = 'burst-petal-piece';
+                    const size = 6 + Math.random() * 8;
+                    petal.style.width = size + 'px';
+                    petal.style.height = (size * 1.4) + 'px';
+                    const hue = 195 + Math.random() * 30;
+                    petal.style.background = `linear-gradient(135deg, hsla(${hue}, 80%, 75%, 0.9), hsla(${hue + 30}, 60%, 65%, 0.6))`;
+                    el.appendChild(petal);
+                }
+
+                document.body.appendChild(el);
+
+                // 动画结束后移除
+                setTimeout(() => el.remove(), 1300);
+            }
+        }
+
+        /* ========================================
+         *  背景音乐控制
+         * ======================================== */
+        function initMusic() {
+            const audio = document.getElementById('bgMusic');
+            const btn = document.getElementById('musicBtn');
+            const icon = btn.querySelector('.music-icon');
+            let isPlaying = false;
+
+            // 尝试自动播放
+            function tryAutoPlay() {
+                audio.volume = 0.3;
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        btn.classList.add('playing');
+                        icon.textContent = '♪';
+                    }).catch(() => {
+                        // 自动播放被阻止，等待用户交互
+                        isPlaying = false;
+                        btn.classList.remove('playing');
+                        icon.textContent = '♪';
+                    });
+                }
+            }
+
+            // 页面加载后尝试自动播放
+            setTimeout(tryAutoPlay, 1500);
+
+            // 用户首次交互时尝试播放
+            document.addEventListener('click', function firstClick() {
+                if (!isPlaying) {
+                    tryAutoPlay();
+                }
+                document.removeEventListener('click', firstClick);
+            }, { once: false });
+
+            // 音乐按钮切换
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isPlaying) {
+                    audio.pause();
+                    isPlaying = false;
+                    btn.classList.remove('playing');
+                    icon.textContent = '♪';
+                } else {
+                    audio.volume = 0.3;
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        btn.classList.add('playing');
+                        icon.textContent = '♪';
+                    }).catch(() => {});
+                }
+            });
+        }
+    </script>
+</body>
+</html>

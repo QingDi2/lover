@@ -16,9 +16,7 @@ animation-delay: var(--animation-delay);
 }
 .word-box .word{
     margin-left: var(--margin-left);
-    /* 景深效果：仅清晰度和模糊度变化，不改变大小 */
-    opacity: calc(0.25 + var(--depth) * 0.75);
-    filter: blur(calc((1 - var(--depth)) * 2.5px));
+    /* 景深效果由JS动态控制，基于rotateY旋转角度 */
 }
 .word-box .word {
     animation-duration: reverse;

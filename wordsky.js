@@ -83,8 +83,8 @@ function init(){
     }
     // 手机端横向散布更广，允许超出屏幕两侧
     var isMobile = window.innerWidth < 768;
-    var mlMin = isMobile ? 15 : 6;
-    var mlMax = isMobile ? 35 : 35;
+    var mlMin = isMobile ? 20 : 6;
+    var mlMax = isMobile ? 40 : 35;
     displayWords.forEach(w=>{
     let word_box = document.createElement('div');
     let word = document.createElement('div');
@@ -98,8 +98,6 @@ function init(){
         word_box.style.setProperty("--margin-left",randomNum(mlMin,mlMax)+'vw');
         word_box.style.setProperty("--animation-duration",randomNum(8,20)+'s');
         word_box.style.setProperty("--animation-delay",randomNum(-20,0)+'s');
-        // 景深：0=远处(模糊透明) 1=近处(清晰)
-        word_box.style.setProperty("--depth",randomNum(0,1));
         
         word_box.appendChild(word);
         f.appendChild(word_box);
@@ -107,7 +105,43 @@ function init(){
 
     })
     container.appendChild(f);
+
+    // 景深效果：读取CSS动画的真实进度来控制opacity和blur
+    // 延迟一帧确保动画已挂载
+    requestAnimationFrame(function() { startDepthEffect(); });
 }
+
+function startDepthEffect() {
+    var items = [];
+    document.querySelectorAll('.word-box').forEach(function(box) {
+        var wordEl = box.querySelector('.word');
+        var dur = parseFloat(box.style.getPropertyValue('--animation-duration')) * 1000 || 10000;
+        items.push({ word: wordEl, box: box, dur: dur });
+    });
+
+    function update() {
+        for (var i = 0; i < items.length; i++) {
+            var it = items[i];
+            // 通过Web Animations API读取CSS动画的真实currentTime
+            var anims = it.box.getAnimations();
+            if (!anims.length) continue;
+            var ct = anims[0].currentTime;
+            if (ct === null || ct === undefined) continue;
+            // currentTime(ms) 对 duration(ms) 取模 → 当前周期进度
+            var progress = (ct % it.dur) / it.dur;
+            var rad = progress * 2 * Math.PI;
+            var cosVal = Math.cos(rad);
+            // 正面半圈(cos>=0): 始终最清晰
+            // 背面半圈(cos<0): 从清晰→模糊→清晰, 180°时最模糊
+            var facing = cosVal >= 0 ? 1 : (1 + cosVal);
+            it.word.style.opacity = (0.6 + facing * 0.4).toFixed(2);
+            it.word.style.filter = 'blur(' + ((1 - facing) * 1).toFixed(1) + 'px)';
+        }
+        requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+}
+
 window.addEventListener('load',init);
 
  

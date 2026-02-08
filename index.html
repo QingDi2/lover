@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>予你青冥蓝玫，共赴朝夕</title>
+    <title>星光璀璨，共赴朝夕</title>
     <!-- 引入中式书法字体 Ma Shan Zheng -->
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <style>
@@ -629,17 +629,32 @@
         .modal-letter {
             padding: 32px 28px 24px;
             position: relative;
+            background-image: url(./iloveyou.png);
+            background-size: 50%;
+            background-repeat: no-repeat;
+            background-position: left 40px bottom 10px;
         }
 
         /* 左上角装饰花纹 */
         .modal-letter::before {
-            content: '❀';
+            content: '';
             position: absolute;
             top: 10px;
             right: 14px;
             font-size: 1.1rem;
             opacity: 0.2;
             color: #c4b5fd;
+            /* 新增：承载第二张图片 */
+            width: 30%;
+            height: 40%;
+            background-image: url(./2.png);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: right top;
+            pointer-events: none; /* 避免遮挡内容点击 */
+
+            /* 核心：透明度动画 */
+            animation: opacityChange 1s infinite alternate;
         }
 
         /* 右下角装饰花纹 */
@@ -652,7 +667,11 @@
             opacity: 0.2;
             color: #93c5fd;
         }
-
+        /* 定义透明度动画 */
+        @keyframes opacityChange {
+        0% { opacity: 0.1; }
+        100% { opacity: 1; }
+        }
         /* 称呼 - 左上角 */
         .modal-addressee {
             text-align: left;
@@ -972,8 +991,13 @@
             box-shadow: 0 0 15px rgba(100, 170, 255, 0.2);
         }
 
-        .music-btn.playing .music-icon {
+        .music-icon {
             animation: musicSpin 2s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .music-btn.playing .music-icon {
+            animation-play-state: running;
         }
 
         @keyframes musicSpin {
@@ -1123,7 +1147,7 @@
 
     <!-- 背景音乐 - 可替换为其他免费音乐外链 -->
     <audio id="bgMusic" loop preload="auto">
-        <source src="https://cdn.pixabay.com/audio/2024/11/01/audio_4956b4edd1.mp3" type="audio/mpeg">
+        <source src="./mp3/七里香.mp3" type="audio/mpeg">
     </audio>
 
     <!-- 音乐控制按钮 -->
@@ -1159,7 +1183,7 @@
 
         <!-- 主标题 - 可修改文案 -->
         <section class="main-title">
-            <h1>予你青冥蓝玫，共赴朝夕</h1>
+            <h1>星光璀璨，共赴朝夕</h1>
             <div class="subtitle">青衿寄情 · 蓝玫予你</div>
         </section>
 
@@ -1242,17 +1266,17 @@
         <section class="cards-section">
             <div class="glass-card">
                 <span class="card-icon">🌙</span>
-                <div class="card-title">月下寄思</div>
+                <div class="card-title">笪月栖思</div>
                 <div class="card-text">月落星沉处，皆是念你时。<br>愿化清风，长伴君侧。</div>
             </div>
             <div class="glass-card">
                 <span class="card-icon">🏔️</span>
-                <div class="card-title">山海为盟</div>
-                <div class="card-text">心悦君兮君不知，<br>今以蓝玫为誓，山海皆可平。</div>
+                <div class="card-title">鸣山海誓</div>
+                <div class="card-text">心悦君兮，山海皆听。<br>蓝玫为誓，山海可平。</div>
             </div>
             <div class="glass-card">
                 <span class="card-icon">🎐</span>
-                <div class="card-title">风铃传情</div>
+                <div class="card-title">璨铃诉衷</div>
                 <div class="card-text">风过檐铃响，声声皆是你。<br>念你无歇，四季不倦。</div>
             </div>
         </section>
@@ -1283,7 +1307,7 @@
             <div class="modal-letter">
                 <!-- 称呼 - 左上角，可修改 -->
                 <div class="modal-addressee">致心上人 · 笪鸣璨</div>
-                <span class="modal-icon">✉</span>
+                <span class="modal-icon">💌</span>
                 <!-- 弹窗情话 - 可修改文案 -->
                 <div class="modal-text" id="modalText">
                     浮世三千，<br>吾爱有三：<br>日、月与卿。<br>日为朝，月为暮，<br>卿为朝朝暮暮。
@@ -1330,16 +1354,28 @@
         // 打字机情话列表 - 可修改/增加
         const typewriterPhrases = [
             "温酒煮茶，与你岁岁",
-            "蓝玫寄意，山海为盟",
-            "心悦于你，无问西东"
+            "心悦于你，无问西东",
+            "初见亦乍欢，久处亦怦然",
+            "南方有嘉木，北方有相思",
+            "日月星辰，不及你",
+            "不早不晚，刚好是你",
+            "好好生活，慢慢爱你",
+            "情不知所起，一往而深",
+            "故事很长，一生很短"
         ];
 
         // 惊喜弹窗情话列表 - 随机显示一句
         const surpriseTexts = [
             "浮世三千，<br>吾爱有三：<br>日、月与卿。<br>日为朝，月为暮，<br>卿为朝朝暮暮。",
-            "玲珑骰子安红豆，<br>入骨相思知不知。<br>愿以星河为聘，<br>予你一世欢颜。",
+            "与你共度的每一秒，<br>都是时光赠予我的，<br>最珍贵的礼物。",
             "春水初生，春林初盛，<br>春风十里，不如你。<br>蓝玫一朵，<br>胜却人间无数。",
-            "遇见你的那一刻，<br>就是宇宙大爆炸的奇点，<br>自此时间开始，<br>万物生辉。"
+            "遇见你的那一刻，<br>似宇宙大爆炸的奇点，<br>自此时间开始，<br>万物生辉。",
+            "愿将世间所有美好，<br>与你一同分享，<br>直到永远。",
+            "让时间证明，<br>我们的爱不是一时兴起，<br>而是陪伴到底。",
+            "是微风，是晚霞，<br>是心跳，是无可替代。",
+            "人生，缘始于“遇见”，<br>情长于“陪伴”，<br>陪伴是我能给你最好的礼物。",
+            "爱情不是寻找一个完美的人，<br>而是学会用完美的眼光看待不完美的人。",
+            "最美好的爱情，<br>不是玫瑰与惊喜，<br>而是你来了以后，<br>再也没走。"
         ];
 
         // 情人节目标日期 - 2026年2月14日
@@ -1362,6 +1398,7 @@
             initEasterEgg();
             initRoseClick();
             initMusic();
+            initCardSounds();
         });
 
         /* ========================================
@@ -1679,33 +1716,83 @@
             const hoursEl = document.getElementById('cdHours');
             const minsEl = document.getElementById('cdMins');
             const secsEl = document.getElementById('cdSecs');
+            const label = document.querySelector('.countdown-label');
+            const units = document.querySelectorAll('.countdown-unit');
+
+            // 情人节当天的起止时间
+            const vStart = new Date('2026-02-14T00:00:00');
+            const vEnd = new Date('2026-02-15T00:00:00');
 
             function update() {
                 const now = new Date();
-                const diff = valentineDate - now;
 
-                if (diff <= 0) {
-                    daysEl.textContent = '0';
-                    hoursEl.textContent = '0';
-                    minsEl.textContent = '0';
-                    secsEl.textContent = '0';
-                    document.querySelector('.countdown-label').textContent = '— 情人节快乐 —';
-                    return;
+                if (now < vStart) {
+                    // ---- 情人节之前：正常倒计时 ----
+                    units.forEach(function(u) { u.style.display = ''; });
+                    label.textContent = '— 距离情人节 —';
+                    const diff = vStart - now;
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                    daysEl.textContent = days;
+                    hoursEl.textContent = String(hours).padStart(2, '0');
+                    minsEl.textContent = String(mins).padStart(2, '0');
+                    secsEl.textContent = String(secs).padStart(2, '0');
+                } else if (now < vEnd) {
+                    // ---- 情人节当天：显示鸣璨宝宝 ----
+                    label.textContent = '— 情人节快乐 —';
+                    units.forEach(function(u) { u.style.display = 'none'; });
+                    daysEl.textContent = '鸣';
+                    hoursEl.textContent = '璨';
+                    minsEl.textContent = '宝';
+                    secsEl.textContent = '宝';
+                } else {
+                    // ---- 情人节之后：显示已过去的时间 ----
+                    units.forEach(function(u) { u.style.display = ''; });
+                    label.textContent = '— 距第1个情人节已过 —';
+                    const elapsed = now - vStart;
+                    const days = Math.floor(elapsed / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((elapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const mins = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((elapsed % (1000 * 60)) / 1000);
+                    daysEl.textContent = days;
+                    hoursEl.textContent = String(hours).padStart(2, '0');
+                    minsEl.textContent = String(mins).padStart(2, '0');
+                    secsEl.textContent = String(secs).padStart(2, '0');
                 }
-
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-                daysEl.textContent = days;
-                hoursEl.textContent = String(hours).padStart(2, '0');
-                minsEl.textContent = String(mins).padStart(2, '0');
-                secsEl.textContent = String(secs).padStart(2, '0');
             }
 
             update();
             setInterval(update, 1000);
+        }
+
+        /* ========================================
+         *  音效播放工具
+         * ======================================== */
+        function playSfx(src, volume) {
+            var a = new Audio(src);
+            a.volume = volume || 0.5;
+            a.play().catch(function(){});
+        }
+
+        /* ========================================
+         *  卡片悬浮音效
+         * ======================================== */
+        function initCardSounds() {
+            const cards = document.querySelectorAll('.glass-card');
+            const soundMap = [
+                'mp3/蟋蟀音效.mp3',
+                'mp3/平静的海滩海浪.mp3',
+                'mp3/风铃音效.mp3'
+            ];
+            cards.forEach(function(card, idx) {
+                if (soundMap[idx]) {
+                    card.addEventListener('mouseenter', function() {
+                        playSfx(soundMap[idx], 0.45);
+                    });
+                }
+            });
         }
 
         /* ========================================
@@ -1718,6 +1805,7 @@
             const modalText = document.getElementById('modalText');
 
             btn.addEventListener('click', () => {
+                playSfx('mp3/翻书音效.mp3', 0.5);
                 // 随机选择一句情话
                 const randomText = surpriseTexts[Math.floor(Math.random() * surpriseTexts.length)];
                 modalText.innerHTML = randomText;
@@ -1745,6 +1833,7 @@
             let isShowing = false;
 
             function showEgg() {
+                playSfx('mp3/科幻点击偏长音效.mp3', 0.5);
                 content.classList.add('show');
                 isShowing = true;
             }
@@ -1793,17 +1882,200 @@
         }
 
         /* ========================================
-         *  点击玫瑰 - 爱心+花瓣爆破
+         *  点击玫瑰 - 爱心+花瓣爆破 + 卡农钢琴演奏
          * ======================================== */
         function initRoseClick() {
             const roseWrapper = document.getElementById('roseWrapper');
 
-            roseWrapper.addEventListener('click', (e) => {
-                const rect = roseWrapper.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
+            // 致爱丽丝 Für Elise 简化单音版
+            // 每点一次玫瑰弹一个音，小白也能轻松弹出致爱丽丝
+            const canonNotes = [
+                // ===== 主题（最经典的开头） =====
+                'p_56_e5',   // E5
+                'p_55_dz5',  // D#5
+                'p_56_e5',   // E5
+                'p_55_dz5',  // D#5
+                'p_56_e5',   // E5
+                'p_51_b4',   // B4
+                'p_54_d5',   // D5
+                'p_52_c5',   // C5
+                'p_49_a4',   // A4  (第一句结束)
 
+                // ===== 低音衔接 =====
+                'p_40_c4',   // C4
+                'p_44_e4',   // E4
+                'p_49_a4',   // A4
+                'p_51_b4',   // B4  (第二句结束)
+
+                // ===== 回到主题动机 =====
+                'p_44_e4',   // E4
+                'p_48_gz4',  // G#4
+                'p_51_b4',   // B4
+                'p_52_c5',   // C5  (第三句结束)
+
+                // ===== 主题再现 =====
+                'p_44_e4',   // E4
+                'p_56_e5',   // E5
+                'p_55_dz5',  // D#5
+                'p_56_e5',   // E5
+                'p_55_dz5',  // D#5
+                'p_56_e5',   // E5
+                'p_51_b4',   // B4
+                'p_54_d5',   // D5
+                'p_52_c5',   // C5
+                'p_49_a4',   // A4  (第四句结束)
+
+                // ===== 低音衔接（重复） =====
+                'p_40_c4',   // C4
+                'p_44_e4',   // E4
+                'p_49_a4',   // A4
+                'p_51_b4',   // B4  (第五句结束)
+
+                // ===== 收尾乐句 =====
+                'p_44_e4',   // E4
+                'p_52_c5',   // C5
+                'p_51_b4',   // B4
+                'p_49_a4',   // A4  (A段结束)
+            ];
+
+            // ---- Web Audio API：移动端可靠播放 ----
+            var pianoCtx = null;
+            var bufferCache = {};
+            var noteIndex = 0;
+            var autoPlayTimer = null;
+            var pressTimer = null;
+            var isAutoPlaying = false;
+            var touchStartTime = 0;
+            var longPressTriggered = false;
+
+            function getPianoCtx() {
+                if (!pianoCtx) {
+                    pianoCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (pianoCtx.state === 'suspended') {
+                    pianoCtx.resume();
+                }
+                return pianoCtx;
+            }
+
+            // 预加载：fetch + decodeAudioData 缓存为 AudioBuffer
+            var uniqueNotes = [...new Set(canonNotes)];
+            uniqueNotes.forEach(function(note) {
+                fetch('piano/' + note + '.mp3')
+                    .then(function(r) { return r.arrayBuffer(); })
+                    .then(function(buf) {
+                        return getPianoCtx().decodeAudioData(buf);
+                    })
+                    .then(function(decoded) {
+                        bufferCache[note] = decoded;
+                    })
+                    .catch(function(){});
+            });
+
+            function playPianoNote() {
+                var ctx = getPianoCtx();
+                var note = canonNotes[noteIndex % canonNotes.length];
+                var buffer = bufferCache[note];
+                if (buffer) {
+                    var source = ctx.createBufferSource();
+                    source.buffer = buffer;
+                    var gain = ctx.createGain();
+                    gain.gain.value = 0.7;
+                    source.connect(gain);
+                    gain.connect(ctx.destination);
+                    source.start(0);
+                }
+                noteIndex++;
+            }
+
+            function triggerBurst() {
+                var rect = roseWrapper.getBoundingClientRect();
+                var cx = rect.left + rect.width / 2;
+                var cy = rect.top + rect.height / 2;
                 createBurst(cx, cy);
+            }
+
+            function onTap() {
+                if (isAutoPlaying) return;
+                playPianoNote();
+                triggerBurst();
+            }
+
+            function startAutoPlay() {
+                isAutoPlaying = true;
+                noteIndex = 0;
+                var totalNotes = canonNotes.length;
+                playPianoNote();
+                triggerBurst();
+                var played = 1;
+                autoPlayTimer = setInterval(function() {
+                    if (played >= totalNotes) {
+                        clearInterval(autoPlayTimer);
+                        autoPlayTimer = null;
+                        isAutoPlaying = false;
+                        noteIndex = 0;
+                        return;
+                    }
+                    playPianoNote();
+                    triggerBurst();
+                    played++;
+                }, 320);
+            }
+
+            function cancelPress() {
+                if (pressTimer) {
+                    clearTimeout(pressTimer);
+                    pressTimer = null;
+                }
+            }
+
+            // 防止长按触发文本选择（纯CSS方式，不影响事件）
+            roseWrapper.style.userSelect = 'none';
+            roseWrapper.style.webkitUserSelect = 'none';
+            roseWrapper.style.webkitTouchCallout = 'none';
+
+            // ---- 桌面端：mousedown/mouseup/click ----
+            roseWrapper.addEventListener('mousedown', function() {
+                if (isAutoPlaying) return;
+                pressTimer = setTimeout(function() {
+                    pressTimer = null;
+                    startAutoPlay();
+                }, 800);
+            });
+            roseWrapper.addEventListener('mouseup', cancelPress);
+            roseWrapper.addEventListener('mouseleave', cancelPress);
+            roseWrapper.addEventListener('click', function(e) {
+                if (isAutoPlaying) return;
+                onTap();
+            });
+
+            // ---- 移动端：touchstart/touchend 手动判断点击/长按 ----
+            roseWrapper.addEventListener('touchstart', function(e) {
+                // 初始化AudioContext（移动端需要用户手势）
+                getPianoCtx();
+                longPressTriggered = false;
+                touchStartTime = Date.now();
+                if (isAutoPlaying) return;
+                pressTimer = setTimeout(function() {
+                    pressTimer = null;
+                    longPressTriggered = true;
+                    startAutoPlay();
+                }, 800);
+            }, { passive: true });
+
+            roseWrapper.addEventListener('touchend', function(e) {
+                cancelPress();
+                // 短按 = 点击弹一个音
+                if (!longPressTriggered && !isAutoPlaying && (Date.now() - touchStartTime < 800)) {
+                    e.preventDefault(); // 仅在短按时阻止，防止触发额外click
+                    onTap();
+                }
+            });
+            roseWrapper.addEventListener('touchcancel', cancelPress);
+
+            // 阻止长按弹出上下文菜单
+            roseWrapper.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
             });
         }
 

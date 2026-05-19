@@ -1,1 +1,678 @@
-cs
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>520 · 璨璨我爱你</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#000;font-family:'Microsoft YaHei',sans-serif}
+canvas{display:block}
+#loading{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,#0a0015 0%,#000 70%);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:1000;transition:opacity 2s}
+#loading.hide{opacity:0;pointer-events:none}
+#loading h1{color:#ff69b4;font-size:2.8em;text-shadow:0 0 30px #ff69b4,0 0 60px #ff1493;margin-bottom:20px;animation:pulse 2s infinite}
+#loading p{color:rgba(255,255,255,0.8);font-size:1.2em}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#subtitle{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);color:#fff;font-size:1.8em;font-weight:bold;text-shadow:0 0 20px #ff69b4,0 0 40px #ff1493;z-index:100;pointer-events:none;opacity:0;transition:opacity 1.5s;display:none}
+#subtitle.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="loading">
+  <h1>💕 520 快乐 💕</h1>
+  <p id="loadMsg">正在准备浪漫惊喜...</p>
+</div>
+<div id="subtitle"></div>
+
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+(function(){
+"use strict";
+
+var scene, camera, renderer, controls, starField, particles, clock = new THREE.Clock();
+var roseMesh = null;
+var starSizes = null, starPhases = null, starSpeeds = null;
+var modelClipPlane = null; // 用于从上到下裁剪模型
+var modelBoundsY = { min: 0, max: 1 }; // 模型Y轴范围 // 实际渲染的模型
+var particleCount = 0;
+var origPositions = null;
+var currentPositions = null;
+var targetPositions = null;
+var velocities = null;
+var colors = null;
+var particleNormY = null;      // 每个粒子的归一化Y高度
+var particleDriftDir = null;   // 每个粒子的飘散方向
+
+// 阶段
+var phases = [
+  { name: '模型展示', duration: 6 },
+  { name: '消融成粒子', duration: 5 },
+  { name: '爱心形成', duration: 9 },
+  { name: '璨璨', duration: 8 },
+  { name: '我爱你', duration: 8 },
+  { name: '520', duration: 5 },
+  { name: '粒子回归模型', duration: 5 },
+  { name: '模型恢复', duration: 5 }
+];
+var currentPhase = 0;
+var phaseTime = 0;
+var totalParticles = 30000;
+
+var textShapes = {};
+var modelOpacity = 1;
+var particleOpacity = 0;
+
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000008);
+
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
+  camera.position.set(0, 2, 18);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.localClippingEnabled = true; // 启用局部裁剪
+  document.body.appendChild(renderer.domElement);
+
+  // OrbitControls 鼠标控制视角
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.enablePan = false;
+  controls.minDistance = 5;
+  controls.maxDistance = 60;
+  controls.target.set(0, 0, 0);
+
+  // 灯光
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  var dl = new THREE.DirectionalLight(0xffffff, 0.8);
+  dl.position.set(5, 10, 7);
+  scene.add(dl);
+  var pl = new THREE.PointLight(0xff69b4, 2, 50);
+  pl.position.set(-3, 5, 10);
+  scene.add(pl);
+  var pl2 = new THREE.PointLight(0xff99cc, 1.5, 50);
+  pl2.position.set(3, -2, 8);
+  scene.add(pl2);
+
+  createStarField();
+  precomputeTextShapes();
+  loadModel();
+
+  window.addEventListener('resize', onResize);
+  animate();
+}
+
+function createStarField() {
+  var N = 5000;
+  var pos = new Float32Array(N * 3);
+  var col = new Float32Array(N * 3);
+  starSizes = new Float32Array(N);
+  starPhases = new Float32Array(N); // 每颗星的闪烁相位
+  starSpeeds = new Float32Array(N); // 每颗星的闪烁速度
+  for (var i = 0; i < N; i++) {
+    var i3 = i * 3;
+    var r = 150 + Math.random() * 600;
+    var theta = Math.random() * Math.PI * 2;
+    var phi = Math.acos(2 * Math.random() - 1);
+    pos[i3] = r * Math.sin(phi) * Math.cos(theta);
+    pos[i3+1] = r * Math.sin(phi) * Math.sin(theta);
+    pos[i3+2] = r * Math.cos(phi);
+    var b = 0.5 + Math.random() * 0.5;
+    col[i3] = b; col[i3+1] = b; col[i3+2] = b * 1.1;
+    starSizes[i] = 0.6 + Math.random() * 1.4;
+    starPhases[i] = Math.random() * Math.PI * 2;
+    starSpeeds[i] = 0.3 + Math.random() * 1.2; // 不同的闪烁快慢
+  }
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  geo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+  var mat = new THREE.PointsMaterial({
+    size: 1.2, vertexColors: true, transparent: true, opacity: 0.8,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+  });
+  starField = new THREE.Points(geo, mat);
+  scene.add(starField);
+}
+
+function precomputeTextShapes() {
+  var canvas = document.createElement('canvas');
+  canvas.width = 1024; canvas.height = 512;
+  var ctx = canvas.getContext('2d');
+  var textList = ['璨璨', '我爱你', '520'];
+  textList.forEach(function(text) {
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, 1024, 512);
+    ctx.fillStyle = 'white';
+    // 更大的字体，更粗
+    var fontSize = text.length <= 2 ? 220 : (text.length === 3 ? 180 : 150);
+    ctx.font = '900 ' + fontSize + 'px Microsoft YaHei';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 512, 256);
+    var imgData = ctx.getImageData(0, 0, 1024, 512);
+    var points = [];
+    // 更密的采样让文字更清晰
+    var step = 2;
+    for (var y = 0; y < 512; y += step) {
+      for (var x = 0; x < 1024; x += step) {
+        if (imgData.data[(y * 1024 + x) * 4] > 128) {
+          // 映射到3D空间，Z轴给一定厚度
+          var zDepth = (Math.random() - 0.5) * 1.2;
+          points.push({
+            x: (x - 512) * 0.018,
+            y: (256 - y) * 0.018,
+            z: zDepth
+          });
+        }
+      }
+    }
+    textShapes[text] = points;
+  });
+}
+
+function generateHeartPoints(count) {
+  var points = [];
+  // 使用3D心形参数曲面方程（Julia's Heart Surface）
+  // x = sin(v) * (15*sin(u) - 4*sin(3u))
+  // y = 8*cos(v)
+  // z = sin(v) * (15*cos(u) - 5*cos(2u) - 2*cos(3u) - cos(4u))
+  for (var i = 0; i < count; i++) {
+    var u = Math.random() * Math.PI * 2;
+    var v = Math.random() * Math.PI; // 0 to PI 形成实心体积
+
+    // 加入体积填充：r从0到1，让爱心不仅仅是表面
+    var r = Math.pow(Math.random(), 1/3); // 立方根分布让内部均匀
+
+    var sinV = Math.sin(v);
+    var cosV = Math.cos(v);
+
+    var x = sinV * (15 * Math.sin(u) - 4 * Math.sin(3 * u));
+    var y = 8 * cosV;
+    var z = sinV * (15 * Math.cos(u) - 5 * Math.cos(2*u) - 2 * Math.cos(3*u) - Math.cos(4*u));
+
+    // r用于填充内部
+    x *= r;
+    y *= r;
+    z *= r;
+
+    // 缩放到合适大小
+    var scale = 0.22;
+    points.push({
+      x: x * scale,
+      y: z * scale,  // 把z映射到y轴让心形竖直
+      z: y * scale   // 把y映射到z轴作为深度
+    });
+  }
+  return points;
+}
+
+function loadModel() {
+  var loader = new THREE.GLTFLoader();
+  var msg = document.getElementById('loadMsg');
+
+  loader.load('./rose.glb', function(gltf) {
+    var model = gltf.scene;
+    var bbox = new THREE.Box3().setFromObject(model);
+    var size = new THREE.Vector3(); bbox.getSize(size);
+    var center = new THREE.Vector3(); bbox.getCenter(center);
+    var maxDim = Math.max(size.x, size.y, size.z);
+    var scale = 8 / maxDim;
+
+    model.scale.setScalar(scale);
+    model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+    model.updateMatrixWorld(true);
+
+    // 记录模型Y轴范围（缩放后）
+    var scaledBbox = new THREE.Box3().setFromObject(model);
+    modelBoundsY.min = scaledBbox.min.y;
+    modelBoundsY.max = scaledBbox.max.y;
+
+    // 创建裁剪平面：法线朝下(0,-1,0)意味着平面以上被裁掉
+    modelClipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), modelBoundsY.max + 10);
+
+    // 让模型材质支持透明和裁剪
+    model.traverse(function(child) {
+      if (child.isMesh) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach(function(m) {
+            m.transparent = true;
+            m.clippingPlanes = [modelClipPlane];
+            m.clipShadows = true;
+            m.needsUpdate = true;
+          });
+        } else if (child.material) {
+          child.material.transparent = true;
+          child.material.clippingPlanes = [modelClipPlane];
+          child.material.clipShadows = true;
+          child.material.needsUpdate = true;
+        }
+      }
+    });
+
+    roseMesh = model;
+    scene.add(roseMesh);
+
+    // 提取顶点用于粒子
+    var vertices = [];
+    model.traverse(function(child) {
+      if (child.isMesh && child.geometry) {
+        var pos = child.geometry.attributes.position;
+        child.updateWorldMatrix(true, false);
+        var mat = child.matrixWorld;
+        for (var i = 0; i < pos.count; i++) {
+          var v = new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i));
+          v.applyMatrix4(mat);
+          vertices.push(v);
+        }
+      }
+    });
+
+    // 采样
+    var sampled = [];
+    if (vertices.length > totalParticles) {
+      var st = vertices.length / totalParticles;
+      for (var i = 0; i < totalParticles; i++) sampled.push(vertices[Math.floor(i * st)]);
+    } else {
+      sampled = vertices.slice();
+      while (sampled.length < totalParticles) {
+        var src = vertices[Math.floor(Math.random() * vertices.length)];
+        sampled.push(new THREE.Vector3(src.x+(Math.random()-0.5)*0.08, src.y+(Math.random()-0.5)*0.08, src.z+(Math.random()-0.5)*0.08));
+      }
+    }
+
+    initParticles(sampled);
+    msg.textContent = '准备完毕!';
+    setTimeout(function(){ document.getElementById('loading').classList.add('hide'); }, 800);
+  }, function(xhr) {
+    if (xhr.lengthComputable) msg.textContent = '加载中 ' + Math.floor(xhr.loaded/xhr.total*100) + '%';
+  }, function() {
+    msg.textContent = '模型加载失败';
+    // 备用球体
+    var pts = [];
+    for (var i = 0; i < totalParticles; i++) {
+      var a = Math.random()*Math.PI*2, b = Math.random()*Math.PI, r2 = 3+Math.random()*2;
+      pts.push(new THREE.Vector3(r2*Math.sin(b)*Math.cos(a), r2*Math.sin(b)*Math.sin(a), r2*Math.cos(b)));
+    }
+    initParticles(pts);
+    setTimeout(function(){ document.getElementById('loading').classList.add('hide'); }, 500);
+  });
+}
+
+function initParticles(vertices) {
+  particleCount = vertices.length;
+  origPositions = new Float32Array(particleCount * 3);
+  currentPositions = new Float32Array(particleCount * 3);
+  targetPositions = new Float32Array(particleCount * 3);
+  velocities = new Float32Array(particleCount * 3);
+  colors = new Float32Array(particleCount * 3);
+
+  // 记录每个粒子的归一化高度（用于从上到下侵蚀）
+  var minY = Infinity, maxY = -Infinity;
+  for (var i = 0; i < particleCount; i++) {
+    var y = vertices[i].y;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+  var yRange = maxY - minY || 1;
+  particleNormY = new Float32Array(particleCount);
+  // 每个粒子的飘散方向
+  particleDriftDir = new Float32Array(particleCount * 3);
+
+  for (var i = 0; i < particleCount; i++) {
+    var i3 = i * 3;
+    origPositions[i3] = vertices[i].x;
+    origPositions[i3+1] = vertices[i].y;
+    origPositions[i3+2] = vertices[i].z;
+    currentPositions[i3] = vertices[i].x;
+    currentPositions[i3+1] = vertices[i].y;
+    currentPositions[i3+2] = vertices[i].z;
+    targetPositions[i3] = vertices[i].x;
+    targetPositions[i3+1] = vertices[i].y;
+    targetPositions[i3+2] = vertices[i].z;
+
+    // 归一化高度：1=顶部, 0=底部
+    particleNormY[i] = (vertices[i].y - minY) / yRange;
+
+    // 预计算飘散方向（向上+向外）
+    var angle = Math.random() * Math.PI * 2;
+    particleDriftDir[i3] = Math.cos(angle) * (0.5 + Math.random() * 0.5);
+    particleDriftDir[i3+1] = 0.6 + Math.random() * 0.8; // 主要向上飘
+    particleDriftDir[i3+2] = Math.sin(angle) * (0.5 + Math.random() * 0.5);
+
+    var rnd = Math.random();
+    if (rnd < 0.35) { colors[i3]=1; colors[i3+1]=0.35; colors[i3+2]=0.6; }
+    else if (rnd < 0.65) { colors[i3]=1; colors[i3+1]=0.15; colors[i3+2]=0.35; }
+    else if (rnd < 0.85) { colors[i3]=1; colors[i3+1]=0.6; colors[i3+2]=0.85; }
+    else { colors[i3]=1; colors[i3+1]=0.9; colors[i3+2]=1; }
+  }
+
+  // 创建圆形粒子纹理
+  var circleCanvas = document.createElement('canvas');
+  circleCanvas.width = 64; circleCanvas.height = 64;
+  var cctx = circleCanvas.getContext('2d');
+  var gradient = cctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, 'rgba(255,255,255,1)');
+  gradient.addColorStop(0.3, 'rgba(255,255,255,0.8)');
+  gradient.addColorStop(0.7, 'rgba(255,200,220,0.3)');
+  gradient.addColorStop(1, 'rgba(255,150,200,0)');
+  cctx.fillStyle = gradient;
+  cctx.fillRect(0, 0, 64, 64);
+  var circleTexture = new THREE.CanvasTexture(circleCanvas);
+
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(currentPositions, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  var mat = new THREE.PointsMaterial({
+    size: 0.12, vertexColors: true, transparent: true, opacity: 0,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+    map: circleTexture, alphaMap: circleTexture
+  });
+  particles = new THREE.Points(geo, mat);
+  scene.add(particles);
+}
+
+// 目标设置函数
+// 消融：根据进度从上到下逐渐设置飘散目标
+function updateDissolveTargets(progress) {
+  // progress 0->1, 侵蚀波从顶部向底部推进
+  // wavefront = 当前侵蚀到的高度位置(1=顶, 0=底)
+  var wavefront = 1.0 - progress * 1.2; // 稍微超出确保全部被侵蚀
+  var transitionWidth = 0.15; // 侵蚀带宽度
+
+  for (var i = 0; i < particleCount; i++) {
+    var i3 = i * 3;
+    var h = particleNormY[i]; // 该粒子的高度 (1=顶, 0=底)
+
+    if (h > wavefront + transitionWidth) {
+      // 已经被完全侵蚀 - 飘散到远处
+      var dist = 8 + (h - wavefront) * 12;
+      targetPositions[i3] = origPositions[i3] + particleDriftDir[i3] * dist;
+      targetPositions[i3+1] = origPositions[i3+1] + particleDriftDir[i3+1] * dist;
+      targetPositions[i3+2] = origPositions[i3+2] + particleDriftDir[i3+2] * dist;
+    } else if (h > wavefront) {
+      // 正在被侵蚀的过渡带 - 轻微抖动+开始飘散
+      var erosion = (h - wavefront) / transitionWidth; // 0到1
+      var dist2 = erosion * 4;
+      targetPositions[i3] = origPositions[i3] + particleDriftDir[i3] * dist2 + Math.sin(i*0.1) * 0.2;
+      targetPositions[i3+1] = origPositions[i3+1] + particleDriftDir[i3+1] * dist2;
+      targetPositions[i3+2] = origPositions[i3+2] + particleDriftDir[i3+2] * dist2 + Math.cos(i*0.1) * 0.2;
+    } else {
+      // 还没被侵蚀 - 保持原位
+      targetPositions[i3] = origPositions[i3];
+      targetPositions[i3+1] = origPositions[i3+1];
+      targetPositions[i3+2] = origPositions[i3+2];
+    }
+  }
+}
+
+function setHeartTargets() {
+  var pts = generateHeartPoints(particleCount);
+  for (var i = 0; i < particleCount; i++) {
+    var i3 = i * 3;
+    targetPositions[i3] = pts[i].x;
+    targetPositions[i3+1] = pts[i].y;
+    targetPositions[i3+2] = pts[i].z;
+  }
+}
+
+function setTextTargets(text) {
+  var pts = textShapes[text];
+  if (!pts || pts.length === 0) return;
+  for (var i = 0; i < particleCount; i++) {
+    var i3 = i * 3;
+    var p = pts[i % pts.length];
+    // 非常小的随机偏移，保持文字清晰度
+    targetPositions[i3] = p.x + (Math.random()-0.5)*0.05;
+    targetPositions[i3+1] = p.y + (Math.random()-0.5)*0.05;
+    targetPositions[i3+2] = p.z + (Math.random()-0.5)*0.08;
+  }
+}
+
+function setModelTargets() {
+  for (var i = 0; i < particleCount; i++) {
+    var i3 = i * 3;
+    targetPositions[i3] = origPositions[i3];
+    targetPositions[i3+1] = origPositions[i3+1];
+    targetPositions[i3+2] = origPositions[i3+2];
+  }
+}
+
+// 设置模型透明度
+function setModelOpacity(opacity) {
+  if (!roseMesh) return;
+  roseMesh.traverse(function(child) {
+    if (child.isMesh) {
+      var mats = Array.isArray(child.material) ? child.material : [child.material];
+      mats.forEach(function(m) {
+        m.opacity = opacity;
+        m.depthWrite = opacity > 0.5;
+        m.needsUpdate = true;
+      });
+    }
+  });
+  if (opacity <= 0.01) roseMesh.visible = false;
+  else roseMesh.visible = true;
+}
+
+// 阶段切换
+function switchPhase(newPhase) {
+  currentPhase = newPhase;
+  phaseTime = 0;
+
+  var sub = document.getElementById('subtitle');
+  sub.classList.remove('show');
+
+  setTimeout(function() {
+    switch(currentPhase) {
+      case 0: // 完整模型展示
+        setModelTargets();
+        sub.textContent = '🌹 为你绽放 🌹';
+        break;
+      case 1: // 模型消融 -> 粒子（从上到下逐渐侵蚀，每帧更新）
+        sub.textContent = '✨ 化作漫天星辰 ✨';
+        break;
+      case 2: // 爱心
+        setHeartTargets();
+        sub.textContent = '💕 我的心只属于你 💕';
+        break;
+      case 3:
+        setTextTargets('璨璨');
+        sub.textContent = '💗 璨璨 💗';
+        break;
+      case 4:
+        setTextTargets('我爱你');
+        sub.textContent = '❤️ 我爱你 ❤️';
+        break;
+      case 5:
+        setTextTargets('520');
+        sub.textContent = '💖 520 💖';
+        break;
+      case 6: // 粒子回归模型位置
+        setModelTargets();
+        sub.textContent = '🌹 化为永恒 🌹';
+        break;
+      case 7: // 模型恢复完整渲染
+        setModelTargets();
+        sub.textContent = '🌹 爱你每一天 🌹';
+        break;
+    }
+    sub.classList.add('show');
+  }, 200);
+}
+
+function updateParticles(delta) {
+  if (!particles) return;
+  var pos = particles.geometry.attributes.position.array;
+  var time = clock.getElapsedTime();
+
+  // 使用临界阻尼弹簧系统，无抖动无振荡
+  // stiffness控制吸引力，damping控制阻尼（>=2*sqrt(stiffness)为临界阻尼）
+  var stiffness, damping;
+  switch(currentPhase) {
+    case 0: stiffness = 3.0; damping = 3.6; break;
+    case 1: stiffness = 1.5; damping = 2.8; break;
+    case 2: stiffness = 2.5; damping = 3.4; break;
+    case 3: case 4: case 5: stiffness = 3.5; damping = 4.0; break;
+    case 6: stiffness = 2.2; damping = 3.2; break;
+    case 7: stiffness = 3.0; damping = 3.6; break;
+    default: stiffness = 2.5; damping = 3.4;
+  }
+
+  var dt = Math.min(delta, 0.033); // 锁定帧率上限
+
+  for (var i = 0; i < particleCount; i++) {
+    var i3 = i * 3;
+
+    // 每个粒子有轻微的个体速度差异，让运动不完全同步
+    var individualDelay = (i % 100) * 0.00002;
+    var s = stiffness * (1 - individualDelay);
+
+    // 弹簧力 = -stiffness * displacement
+    // 阻尼力 = -damping * velocity
+    var dx = pos[i3] - targetPositions[i3];
+    var dy = pos[i3+1] - targetPositions[i3+1];
+    var dz = pos[i3+2] - targetPositions[i3+2];
+
+    var ax = -s * dx - damping * velocities[i3];
+    var ay = -s * dy - damping * velocities[i3+1];
+    var az = -s * dz - damping * velocities[i3+2];
+
+    velocities[i3] += ax * dt;
+    velocities[i3+1] += ay * dt;
+    velocities[i3+2] += az * dt;
+
+    pos[i3] += velocities[i3] * dt;
+    pos[i3+1] += velocities[i3+1] * dt;
+    pos[i3+2] += velocities[i3+2] * dt;
+
+    // 柔和的浮动感（很微小，不影响形状）
+    var floatAmp = 0.003;
+    pos[i3] += Math.sin(time * 0.8 + i * 0.005) * floatAmp * dt;
+    pos[i3+1] += Math.cos(time * 0.6 + i * 0.007) * floatAmp * dt;
+  }
+
+  particles.geometry.attributes.position.needsUpdate = true;
+}
+
+// 主循环
+function animate() {
+  requestAnimationFrame(animate);
+  var delta = clock.getDelta();
+  if (delta > 0.1) delta = 0.1;
+  var time = clock.getElapsedTime();
+
+  phaseTime += delta;
+
+  // 自动切换
+  if (phaseTime >= phases[currentPhase].duration) {
+    var next = (currentPhase + 1) % phases.length;
+    switchPhase(next);
+  }
+
+  // 根据阶段处理模型和粒子的可见性
+  if (!particles) { controls.update(); renderer.render(scene, camera); return; }
+  var t = phaseTime;
+  var d = phases[currentPhase].duration;
+  var progress = Math.min(t / d, 1);
+
+  switch(currentPhase) {
+    case 0: // 模型完整展示，粒子隐藏
+      if (modelClipPlane) modelClipPlane.constant = modelBoundsY.max + 10; // 裁剪面远离模型
+      setModelOpacity(1);
+      particles.material.opacity = 0;
+      break;
+    case 1: // 模型逐渐从上到下侵蚀消失，粒子逐渐出现
+      updateDissolveTargets(progress);
+      // 用裁剪平面从上到下切掉模型
+      if (modelClipPlane) {
+        // 平面constant = 裁剪位置Y值，从顶部向底部移动
+        var clipY = modelBoundsY.max - progress * (modelBoundsY.max - modelBoundsY.min) * 1.2;
+        modelClipPlane.constant = clipY;
+      }
+      setModelOpacity(1); // 模型保持不透明，靠裁剪来隐藏
+      if (progress > 0.9) setModelOpacity(0); // 最后彻底隐藏
+      // 粒子透明度逐渐增强
+      var fadeIn = Math.min(progress * 2, 1);
+      particles.material.opacity = fadeIn * 0.85;
+      particles.material.size = 0.08 + progress * 0.05;
+      break;
+    case 2: // 爱心 - 纯粒子
+      setModelOpacity(0);
+      particles.material.opacity = 0.95;
+      particles.material.size = 0.14;
+      break;
+    case 3: case 4: case 5: // 文字 - 纯粒子
+      setModelOpacity(0);
+      particles.material.opacity = 1;
+      particles.material.size = 0.08;
+      break;
+    case 6: // 粒子回归模型位置
+      setModelOpacity(0);
+      particles.material.opacity = 0.9;
+      particles.material.size = 0.1;
+      break;
+    case 7: // 模型恢复，粒子消失
+      if (modelClipPlane) modelClipPlane.constant = modelBoundsY.max + 10; // 裁剪面复位
+      var modelFadeIn = Math.min(progress * 2, 1);
+      var particleFadeOut = 1 - Math.min(progress * 2, 1);
+      setModelOpacity(modelFadeIn);
+      particles.material.opacity = particleFadeOut * 0.9;
+      particles.material.size = 0.1;
+      break;
+  }
+
+  updateParticles(delta);
+
+  // 星空旋转+闪烁
+  if (starField) {
+    starField.rotation.y = time * 0.003;
+    // 更新星星颜色实现闪烁
+    var starColors = starField.geometry.attributes.color.array;
+    var N = starColors.length / 3;
+    for (var si = 0; si < N; si++) {
+      var si3 = si * 3;
+      var twinkle = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(time * starSpeeds[si] + starPhases[si]));
+      var base = starSizes[si] / 2.0; // 用size作为基础亮度参考
+      starColors[si3] = base * twinkle;
+      starColors[si3+1] = base * twinkle;
+      starColors[si3+2] = base * twinkle * 1.1;
+    }
+    starField.geometry.attributes.color.needsUpdate = true;
+  }
+
+  // 文字阶段粒子不旋转，其他阶段微微旋转
+  if (particles) {
+    if (currentPhase >= 3 && currentPhase <= 5) {
+      particles.rotation.y += (0 - particles.rotation.y) * 0.05;
+    } else if (currentPhase === 0 || currentPhase === 7) {
+      particles.rotation.y = 0;
+    }
+  }
+
+  // 模型跟粒子同步旋转
+  if (roseMesh) {
+    roseMesh.rotation.y = particles ? particles.rotation.y : 0;
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+switchPhase(0);
+init();
+
+})();
+</script>
+</body>
+</html>
